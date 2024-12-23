@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import fragmentShader from './shaders/fragment.glsl';
 	import vertexShader from './shaders/vertex.glsl';
-	import { max, vertexColor } from 'three/tsl';
+	import { cameraFar, max, vertexColor } from 'three/tsl';
 	let canvas;
 
 	onMount(() => {
@@ -13,20 +13,29 @@
 		let particlePositions, linePositions, lineColors, lines, particles;
 		let particleData = [];
 		let boundData = [];
-		const numParticles = 50;
-		const xLength = 1000;
-		const yLength = 1000;
-		const zLength = 50;
-		const maxDistance = 200;
-		const speed = 0.1;
-		const boundX = 20;
-		const boundY = 20;
-		const boundZ = 2;
+		const numParticles = 75;
+		const xLength = 2000;
+		const yLength = 50;
+		const zLength = 2000;
+		const maxDistance = 500;
+		const speed = 0.03;
+		const boundX = 50;
+		const boundY = 50;
+		const boundZ = 50;
 
 		function init() {
 			// INIT CAMERA
-			camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 1, 4000);
-			camera.position.z = 700;
+			//camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 1, 4000);
+			camera = new THREE.OrthographicCamera(
+				canvas.clientWidth / -2,
+				canvas.clientWidth / 2,
+				canvas.clientHeight / 2,
+				canvas.clientHeight / -2,
+				1,
+				4000
+			);
+			camera.position.x = 2000;
+			camera.position.y = 800;
 			camera.lookAt(0, 0, 0);
 			// INIT SCENE
 			scene = new THREE.Scene();
@@ -34,6 +43,7 @@
 			// INIT RENDERER
 			renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 			renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setAnimationLoop(animate);
 
 			// GET THE POSITIONS OF THE PARTICLES
@@ -95,7 +105,7 @@
 			// SET THE LINES MATERIAL
 			let linesMaterial = new THREE.LineBasicMaterial({
 				vertexColors: true,
-				blending: THREE.AdditiveBlending,
+				blending: THREE.NormalBlending,
 				transparent: true
 			});
 
