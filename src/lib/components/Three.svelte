@@ -1,4 +1,6 @@
 <script>
+	export let className = '';
+
 	import * as THREE from 'three';
 	import { onMount } from 'svelte';
 	import fragmentShader from './shaders/fragment.glsl';
@@ -11,11 +13,11 @@
 		let particlePositions, linePositions, lineColors, lines, particles;
 		let particleData = [];
 		let boundData = [];
-		const numParticles = 200;
-		const xLength = 500;
-		const yLength = 500;
+		const numParticles = 50;
+		const xLength = 1000;
+		const yLength = 1000;
 		const zLength = 50;
-		const maxDistance = 110;
+		const maxDistance = 200;
 		const speed = 0.1;
 		const boundX = 20;
 		const boundY = 20;
@@ -184,20 +186,15 @@
 
 		// Handle resize
 		window.addEventListener('resize', () => {
-			camera.aspect = canvas.clientWidth / canvas.clientHeight;
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
-			renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+			renderer.setSize(window.innerWidth, window.innerHeight);
 		});
 	});
 </script>
 
-<canvas bind:this={canvas}></canvas>
-
-<style>
-	canvas {
-		display: block;
-		position: absolute;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+<div class={className}>
+	<canvas class="h-screen w-screen" bind:this={canvas}></canvas>
+</div>
