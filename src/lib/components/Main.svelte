@@ -17,7 +17,7 @@
 	<!-- Render Three.js Background -->
 	<Three />
 
-	<!-- Content on top of the Three.js background -->
+	<!--
 	<div class="absolute inset-0 z-10 flex items-center justify-center text-white">
 		<div class="text-center">
 			<h1 class="mb-4 text-4xl font-bold">Hi, I'm Tarek!</h1>
@@ -38,6 +38,7 @@
 			</div>
 		</div>
 	</div>
+    -->
 </main>
 
 <style>
