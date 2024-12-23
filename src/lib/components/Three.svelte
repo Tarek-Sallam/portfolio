@@ -10,13 +10,16 @@
 		let scene, camera, renderer;
 		let particlePositions, linePositions, lineColors, lines, particles;
 		let particleData = [];
-
+		let boundData = [];
 		const numParticles = 200;
 		const xLength = 500;
 		const yLength = 500;
-		const zLength = 0;
+		const zLength = 50;
 		const maxDistance = 110;
-		const speed = 0.5;
+		const speed = 0.1;
+		const boundX = 20;
+		const boundY = 20;
+		const boundZ = 2;
 
 		function init() {
 			// INIT CAMERA
@@ -43,6 +46,9 @@
 				particlePositions[i * 3] = x;
 				particlePositions[i * 3 + 1] = y;
 				particlePositions[i * 3 + 2] = z;
+				boundData[i * 3] = x;
+				boundData[i * 3 + 1] = y;
+				boundData[i * 3 + 2] = z;
 
 				particleData.push({
 					velocity: new THREE.Vector3(
@@ -110,19 +116,25 @@
 
 				if (
 					particlePositions[i * 3] < (-1 * xLength) / 2 ||
-					particlePositions[i * 3] > xLength / 2
+					particlePositions[i * 3] > xLength / 2 ||
+					particlePositions[i * 3] < (-1 * boundX) / 2 + boundData[i * 3] ||
+					particlePositions[i * 3] > boundX / 2 + boundData[i * 3]
 				) {
 					data.velocity.x = -data.velocity.x;
 				}
 				if (
 					particlePositions[i * 3 + 1] < (-1 * yLength) / 2 ||
-					particlePositions[i * 3 + 1] > yLength / 2
+					particlePositions[i * 3 + 1] > yLength / 2 ||
+					particlePositions[i * 3 + 1] < (-1 * boundY) / 2 + boundData[i * 3 + 1] ||
+					particlePositions[i * 3 + 1] > boundY / 2 + boundData[i * 3 + 1]
 				) {
 					data.velocity.y = -data.velocity.y;
 				}
 				if (
 					particlePositions[i * 3 + 2] < (-1 * zLength) / 2 ||
-					particlePositions[i * 3 + 2] > zLength / 2
+					particlePositions[i * 3 + 2] > zLength / 2 ||
+					particlePositions[i * 3 + 2] < (-1 * boundZ) / 2 + boundData[i * 3 + 2] ||
+					particlePositions[i * 3 + 2] > boundZ / 2 + boundData[i * 3 + 2]
 				) {
 					data.velocity.z = -data.velocity.z;
 				}
