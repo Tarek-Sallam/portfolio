@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 	import fragmentShader from './shaders/fragment.glsl';
 	import vertexShader from './shaders/vertex.glsl';
-	import { cameraFar, max, vertexColor } from 'three/tsl';
+	import { cameraFar, deltaTime, max, vertexColor } from 'three/tsl';
 	let canvas;
 
 	onMount(() => {
@@ -13,16 +13,40 @@
 		let particlePositions, linePositions, lineColors, lines, particles;
 		let particleData = [];
 		let boundData = [];
-		const numParticles = 75;
-		const xLength = 2000;
-		const yLength = 50;
-		const zLength = 2000;
-		const maxDistance = 500;
-		const speed = 0.03;
+		const numParticles = 100;
+		const xLength = 4000;
+		const yLength = 0;
+		const zLength = 4000;
+		const maxDistance = 700;
+		const awaySpeed = 0.5;
+		const speed = 5;
 		const boundX = 50;
-		const boundY = 50;
 		const boundZ = 50;
+		const intersectRadius = 300;
+		const maxHeight = 150;
+		const raycaster = new THREE.Raycaster();
+		const pointer = new THREE.Vector2();
 
+		function onPointerMove(event) {
+			pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+			pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+		}
+		function calculateXZIntersect(ray) {
+			const origin = ray.origin;
+			const direction = ray.direction;
+
+			if (direction.y === 0) {
+				return origin;
+			}
+
+			const t = -origin.y / direction.y;
+
+			if (t < 0) return null;
+
+			const intersection = new THREE.Vector3();
+			intersection.copy(direction).multiplyScalar(t).add(origin);
+			return intersection;
+		}
 		function init() {
 			// INIT CAMERA
 			//camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 1, 4000);
@@ -31,11 +55,12 @@
 				canvas.clientWidth / 2,
 				canvas.clientHeight / 2,
 				canvas.clientHeight / -2,
-				1,
+				0,
 				4000
 			);
 			camera.position.x = 2000;
-			camera.position.y = 800;
+			camera.position.z = 0;
+			camera.position.y = 700;
 			camera.lookAt(0, 0, 0);
 			// INIT SCENE
 			scene = new THREE.Scene();
@@ -63,11 +88,7 @@
 				boundData[i * 3 + 2] = z;
 
 				particleData.push({
-					velocity: new THREE.Vector3(
-						-1 + Math.random() * 2,
-						-1 + Math.random() * 2,
-						-1 + Math.random() * 2
-					)
+					velocity: new THREE.Vector3(-1 + Math.random() * 2, 0, -1 + Math.random() * 2)
 				});
 			}
 
@@ -79,7 +100,16 @@
 			);
 
 			// CREATE THE MATERIAL FOR THE PARTICLES
-			let particlesMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 5 });
+			let particlesMaterial = new THREE.ShaderMaterial({
+				uniforms: {
+					uColor: { value: new THREE.Color(0xffffff) },
+					uSize: { value: 8.0 }
+				},
+				vertexShader: vertexShader,
+				fragmentShader: fragmentShader,
+				transparent: true,
+				blending: THREE.AdditiveBlending
+			});
 
 			// CREATE THE PARTICLES
 			particles = new THREE.Points(particlesBuffer, particlesMaterial);
@@ -105,7 +135,7 @@
 			// SET THE LINES MATERIAL
 			let linesMaterial = new THREE.LineBasicMaterial({
 				vertexColors: true,
-				blending: THREE.NormalBlending,
+				blending: THREE.AdditiveBlending,
 				transparent: true
 			});
 
@@ -115,42 +145,56 @@
 			scene.add(particles);
 			scene.add(lines);
 		}
+		function updatePoint(deltaTime, i, intersect) {
+			let dist = 0;
+			if (intersect) {
+				const away = new THREE.Vector3(
+					particlePositions[i * 3] - intersect.x,
+					particlePositions[i * 3 + 1] - intersect.y,
+					particlePositions[i * 3 + 2] - intersect.z
+				);
+				dist = Math.sqrt(away.x * away.x + away.z * away.z);
+			} else {
+				dist = intersectRadius + 1;
+			}
+			if (dist <= intersectRadius) {
+				const falloff = Math.exp(
+					(-dist * dist) / (2 * (intersectRadius * 0.5) * (intersectRadius * 0.5))
+				);
+				const targetHeight = maxHeight * falloff;
+				particlePositions[i * 3 + 1] +=
+					(targetHeight - particlePositions[i * 3 + 1]) * awaySpeed * deltaTime;
+			} else {
+				const targetHeight = boundData[i * 3 + 1];
+				particlePositions[i * 3 + 1] +=
+					(targetHeight - particlePositions[i * 3 + 1]) * awaySpeed * deltaTime;
+			}
+			particlePositions[i * 3] += particleData[i].velocity.x * speed * deltaTime;
+			particlePositions[i * 3 + 2] += particleData[i].velocity.z * speed * deltaTime;
 
+			if (
+				particlePositions[i * 3] >= boundData[i * 3] + boundX / 2 ||
+				particlePositions[i * 3] <= boundData[i * 3] - boundX / 2
+			) {
+				particleData[i].velocity.x *= -1;
+			}
+			if (
+				particlePositions[i * 3 + 2] >= boundData[i * 3 + 2] + boundZ / 2 ||
+				particlePositions[i * 3 + 2] <= boundData[i * 3 + 2] - boundZ / 2
+			) {
+				particleData[i].velocity.z *= -1;
+			}
+		}
 		function animate() {
+			const deltaTime = 1 / 60;
+			raycaster.setFromCamera(pointer, camera);
+			const intersect = calculateXZIntersect(raycaster.ray);
 			let vertexPos = 0;
 			let colorPos = 0;
 			let connected = 0;
 			for (let i = 0; i < numParticles; i++) {
-				const data = particleData[i];
-				particlePositions[i * 3] += data.velocity.x * speed;
-				particlePositions[i * 3 + 1] += data.velocity.y * speed;
-				particlePositions[i * 3 + 2] += data.velocity.z * speed;
-
-				if (
-					particlePositions[i * 3] < (-1 * xLength) / 2 ||
-					particlePositions[i * 3] > xLength / 2 ||
-					particlePositions[i * 3] < (-1 * boundX) / 2 + boundData[i * 3] ||
-					particlePositions[i * 3] > boundX / 2 + boundData[i * 3]
-				) {
-					data.velocity.x = -data.velocity.x;
-				}
-				if (
-					particlePositions[i * 3 + 1] < (-1 * yLength) / 2 ||
-					particlePositions[i * 3 + 1] > yLength / 2 ||
-					particlePositions[i * 3 + 1] < (-1 * boundY) / 2 + boundData[i * 3 + 1] ||
-					particlePositions[i * 3 + 1] > boundY / 2 + boundData[i * 3 + 1]
-				) {
-					data.velocity.y = -data.velocity.y;
-				}
-				if (
-					particlePositions[i * 3 + 2] < (-1 * zLength) / 2 ||
-					particlePositions[i * 3 + 2] > zLength / 2 ||
-					particlePositions[i * 3 + 2] < (-1 * boundZ) / 2 + boundData[i * 3 + 2] ||
-					particlePositions[i * 3 + 2] > boundZ / 2 + boundData[i * 3 + 2]
-				) {
-					data.velocity.z = -data.velocity.z;
-				}
-
+				updatePoint(deltaTime, i, intersect);
+				// draw all the lines
 				for (let j = i + 1; j < numParticles; j++) {
 					const dataB = particleData[j];
 
@@ -202,6 +246,8 @@
 			camera.updateProjectionMatrix();
 			renderer.setSize(window.innerWidth, window.innerHeight);
 		});
+
+		window.addEventListener('pointermove', onPointerMove);
 	});
 </script>
 
