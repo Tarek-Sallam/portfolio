@@ -1,45 +1,106 @@
 <script>
+	/* IMPORT ALL LIBRARIES */
+	import { onMount, onDestroy } from 'svelte';
+	import { gsap } from 'gsap';
+	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
+
+	/* IMPORT STORES */
+	import { sectionStore, scrollStore } from '../store';
+
+	/* PROPS */
 	export let className = '';
-	export let logoSrc = './logoWhite.svg';
-	export let isScrolling;
-	export let currentSection;
 	export let scrollToSection;
 	export let timeoutDuration;
 
+	/* GLOBAL CONSTANTS */
+	const logoSrc = './logoWhite.svg';
+
+	/* GLOBAL VARIABLES */
 	let scrollTo;
-	import { gsap } from 'gsap';
-	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-	import { onMount, createEventDispatcher } from 'svelte';
-	import Page from '../../routes/+page.svelte';
+	let isScrolling; // tracks the scroll store
+	let currentSection; //  tracks the section store
 
-	const dispatch = createEventDispatcher();
+	let sectionUnsubscribe, scrollUnsubscribe; // for store subscribe cleanup
 
-	function updateProps(section, isScroll) {
+	// STORE SETTERS
+	function updateSection(newSection) {
+		sectionStore.set(newSection);
+	}
+	function updateScroll(newScroll) {
+		scrollStore.set(newScroll);
+	}
+
+	// STORE SUBSCRIPTIONS
+	function onSectionSubscribe(section) {
 		currentSection = section;
-		isScrolling = isScroll;
-		dispatch('update', { currentSection, isScrolling });
+	}
+	function onScrollSubscribe(scroll) {
+		isScrolling = scroll;
+	}
+
+	// CONSTRUCTION, INIT, DESTRUCTION
+	function construct() {
+		// HANDLE STORE SUBSCRIPTIONS
+		sectionUnsubscribe = sectionStore.subscribe((section) => {
+			onSectionSubscribe(section);
+		});
+		scrollUnsubscribe = scrollStore.subscribe((scroll) => {
+			onScrollSubscribe(scroll);
+		});
+
+		// REGISTER PLUGINS
+		gsap.registerPlugin(ScrollToPlugin);
+	}
+
+	function init() {}
+	function destroy() {
+		// CLEANUP STORES
+		if (sectionUnsubscribe) {
+			sectionUnsubscribe();
+		}
+		if (scrollUnsubscribe) {
+			scrollUnsubscribe();
+		}
+	}
+
+	// HANDLERS
+	function handleClick(id, e) {
+		// prevent default behaviour of clicking a link
+		e.preventDefault();
+
+		// if we are already scrolling then exit (prevent overlap)
+		if (isScrolling) return;
+
+		// lock the scroll boolean (prevent overlap)
+		updateScroll(true);
+
+		// get the index depending on which section fired this event
+		const idx = Array.from(document.querySelectorAll('section')).findIndex(
+			(section) => section.id === id
+		);
+
+		// if we are already in the given section, then unlock the scroll boolean and exit
+		if (currentSection === idx) {
+			updateScroll(false);
+			return;
+		}
+
+		// otherwise update the section, and scroll to the seciton
+		updateSection(idx);
+		scrollToSection(currentSection, 1);
+
+		// set timeout for the animation to run, before unlocking the scroll boolean (prevents overlap)
+		setTimeout(() => {
+			updateScroll(false);
+		}, timeoutDuration);
 	}
 
 	onMount(() => {
-		gsap.registerPlugin(ScrollToPlugin);
-
-		scrollTo = (id, e) => {
-			e.preventDefault();
-			if (isScrolling) return;
-			updateProps(currentSection, true);
-			const idx = Array.from(document.querySelectorAll('section')).findIndex(
-				(section) => section.id === id
-			);
-			if (currentSection === idx) {
-				updateProps(currentSection, false);
-				return;
-			}
-			updateProps(idx, true);
-			scrollToSection(currentSection);
-			setTimeout(() => {
-				updateProps(currentSection, false);
-			}, timeoutDuration);
-		};
+		construct();
+		init();
+		onDestroy(() => {
+			destroy();
+		});
 	});
 </script>
 
@@ -54,8 +115,8 @@
 
 			<nav>
 				<ol class="flex items-center justify-between space-x-10">
-					<li><a href="#projects" on:click={(e) => scrollTo('projects', e)}>Projects</a></li>
-					<li><a href="#about-me" on:click={(e) => scrollTo('about-me', e)}>About</a></li>
+					<li><a href="#projects" on:click={(e) => handleClick('projects', e)}>Projects</a></li>
+					<li><a href="#about-me" on:click={(e) => handleClick('about-me', e)}>About</a></li>
 				</ol>
 			</nav>
 		</div>

@@ -1,4 +1,5 @@
 <script>
+	/* IMPORT ALL COMPONENTS */
 	import AboutMe from './AboutMe.svelte';
 	import Experience from './Experience.svelte';
 	import Header from './Header.svelte';
@@ -6,76 +7,160 @@
 	import Projects from './Projects.svelte';
 	import Three from './Three.svelte';
 
-	import { onMount } from 'svelte';
+	/* IMPORT ALL LIBRARIES */
+	import { onMount, onDestroy } from 'svelte';
 	import { gsap } from 'gsap';
 	import ScrollToPlugin from 'gsap/ScrollToPlugin';
-	import Page from '../../routes/+page.svelte';
-	import { TextureLoader } from 'three';
 
-	let defaultClass = 'z-10 container mx-auto min-h-screen flex justify-center items-center';
-	let currentSection;
-	let isScrolling;
-	let scrollToSection;
-	const duration = 1.5;
-	const timeoutDuration = duration * 1000 + 100;
+	/* IMPORT STORES */
+	import { cameraStore, sectionStore, scrollStore } from '../store.js';
 
-	onMount(() => {
+	// DEFAULT CLASSES FOR THE COMPONENTS
+	const defaultClass = 'z-10 container mx-auto min-h-screen flex justify-center items-center';
+
+	// CONSTANTS
+	const duration = 1.3; // duration of page transitions
+	const timeoutDuration = duration * 1000 + 100; // time out scroll duration in ms
+
+	// GLOBAL VARIABLES
+	let isScrolling = false; // is page scrolling determined by store
+	let currentSection = 0; // currentSection of the page determined by store
+	let scrollToSection; // Prop to point to scrollTo function
+	let sections; // An array to hold the section HTML elements
+
+	let sectionUnsubscribe, scrollUnsubscribe; // for store subscribe cleanup
+
+	// STORE SETTERS
+	function updateCamera(newPosition) {
+		cameraStore.set(newPosition);
+	}
+	function updateSection(newSection) {
+		sectionStore.set(newSection);
+	}
+	function updateScroll(newScroll) {
+		scrollStore.set(newScroll);
+	}
+
+	// STORE SUBSCRIPTIONS
+	function onSectionSubscribe(section) {
+		currentSection = section;
+	}
+	function onScrollSubscribe(scroll) {
+		isScrolling = scroll;
+	}
+
+	// GENERAL PURPOSE FUNCTIONS
+	function scrollTo(index, factor) {
+		// get the target section element given the index
+		const targetSection = sections[index];
+
+		// update the camera store for the new index (so Three moves camera)
+		updateCamera(index);
+
+		// animate the transition to the target section
+		gsap.to(window, {
+			scrollTo: targetSection,
+			duration: duration * factor,
+			ease: 'power1.inOut'
+		});
+	}
+
+	// CONSTRUCTION, INIT, DESTROY
+	function construct() {
+		// SUBSCRIBE TO THE STORES
+		sectionUnsubscribe = sectionStore.subscribe((section) => {
+			onSectionSubscribe(section);
+		});
+		scrollUnsubscribe = scrollStore.subscribe((scroll) => {
+			onScrollSubscribe(scroll);
+		});
+
+		// REGISTER GSAP PLUGINS
 		gsap.registerPlugin(ScrollToPlugin);
 
-		const sections = document.querySelectorAll('section');
-
-		scrollToSection = (index) => {
-			const targetSection = sections[index];
-			gsap.to(window, {
-				scrollTo: targetSection,
-				duration: duration,
-				ease: 'power2.inout'
-			});
+		// Point my function pointer to the scrollTo function
+		scrollToSection = (index, factor) => {
+			scrollTo(index, factor);
 		};
 
-		currentSection = 0;
-		isScrolling = true;
-		scrollToSection(0);
-		setTimeout(() => {
-			isScrolling = false;
-		}, timeoutDuration);
+		// Get the sections
+		sections = document.querySelectorAll('section');
 
-		window.addEventListener(
-			'wheel',
-			(e) => {
-				e.preventDefault();
-				if (isScrolling) return;
-				isScrolling = true;
-				if (e.deltaY > 0 && currentSection < sections.length - 1) {
-					scrollToSection(++currentSection);
-				} else if (e.deltaY < 0 && currentSection > 0) {
-					scrollToSection(--currentSection);
-				} else {
-					isScrolling = false;
-					return;
-				}
-				setTimeout(() => {
-					isScrolling = false;
-				}, timeoutDuration);
-			},
-			{ passive: false }
-		);
+		// Add event listeners
+		window.addEventListener('wheel', handleWheel, { passive: false });
+	}
+
+	function init() {
+		// make the section the first section, and scroll to it (instantly) before unlocking the scroll
+		updateSection(0);
+		scrollToSection(0, 0);
+		updateScroll(false);
+	}
+
+	function destroy() {
+		// CLEANUP EVENT LISTENERS
+		window.removeEventListener('wheel', handleWheel);
+
+		// KILL TWEENS
+		gsap.killTweensOf(window);
+
+		// CLEANUP STORES
+		if (sectionUnsubscribe) {
+			sectionUnsubscribe();
+		}
+		if (scrollUnsubscribe) {
+			scrollUnsubscribe();
+		}
+	}
+
+	// HANDLERS
+	function handleWheel(e) {
+		// prevent the default scrolling
+		e.preventDefault();
+
+		// if we are currently scrolling, exit the function (no overlap)
+		if (isScrolling) return;
+
+		// lock the scrolling boolean (prevent overlap)
+		updateScroll(true);
+
+		// if the change in Y is positive and we are not at the last section, update the section store,
+		// and scroll to the section
+		if (e.deltaY > 0 && currentSection < sections.length - 1) {
+			updateSection(currentSection + 1);
+			scrollToSection(currentSection, 1);
+		}
+		// if the change in Y is negative and we are not at the first section, update the section store,
+		// and scroll to the section
+		else if (e.deltaY < 0 && currentSection > 0) {
+			updateSection(currentSection - 1);
+			scrollToSection(currentSection, 1);
+		}
+		// otherwise we cannot scroll more (up or down), so unlock the scroll boolean and exit
+		else {
+			updateScroll(false);
+			return;
+		}
+
+		// set a timeout, so that the animation has time before we unlock the scroll boolean
+		setTimeout(() => {
+			updateScroll(false);
+		}, timeoutDuration);
+	}
+
+	// ON MOUNT (CLIENT SIDE)
+	onMount(() => {
+		construct(); // construct
+		init(); // initialize
+		onDestroy(() => {
+			destroy(); // destroy
+		});
 	});
 </script>
 
 <main class="relative flex min-h-screen flex-col bg-black">
-	<Three className="z-0 fixed top-0 left-0 right-0 w-full " />
-	<Header
-		{isScrolling}
-		{currentSection}
-		{scrollToSection}
-		{timeoutDuration}
-		on:update={(e) => {
-			currentSection = e.detail.currentSection;
-			isScrolling = e.detail.isScrolling;
-		}}
-		className="z-20 fixed top-0 left-0 right-0"
-	/>
+	<Three {duration} className="z-0 fixed top-0 left-0 right-0 w-full " />
+	<Header {scrollToSection} {timeoutDuration} className="z-20 fixed top-0 left-0 right-0" />
 	<Hero className={defaultClass} />
 	<AboutMe className={defaultClass} />
 	<Experience className={defaultClass} />
