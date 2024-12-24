@@ -1,11 +1,14 @@
 <script>
+	/* IMPORT ALL COMPONENTS */
+	import ToggleButton from './ToggleButton.svelte';
+
 	/* IMPORT ALL LIBRARIES */
 	import { onMount, onDestroy } from 'svelte';
 	import { gsap } from 'gsap';
 	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 	/* IMPORT STORES */
-	import { sectionStore, scrollStore } from '../store';
+	import { sectionStore, scrollStore, darkModeStore } from '../store';
 
 	/* PROPS */
 	export let className = '';
@@ -13,12 +16,16 @@
 	export let timeoutDuration;
 
 	/* GLOBAL CONSTANTS */
-	const logoSrc = './logoWhite.svg';
+	let logoSrc;
+	$: {
+		logoSrc = $darkModeStore ? './logo_w.svg' : './logo.svg';
+	}
 
 	/* GLOBAL VARIABLES */
 	let scrollTo;
 	let isScrolling; // tracks the scroll store
 	let currentSection; //  tracks the section store
+	let isMobileMenuOpen = false; // for hamburger menu
 
 	let sectionUnsubscribe, scrollUnsubscribe; // for store subscribe cleanup
 
@@ -94,7 +101,11 @@
 			updateScroll(false);
 		}, timeoutDuration);
 	}
-
+	function toggleMobileMenu(event) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			isMobileMenuOpen = !isMobileMenuOpen;
+		}
+	}
 	onMount(() => {
 		construct();
 		init();
@@ -105,18 +116,35 @@
 </script>
 
 <div class={className}>
-	<header class="px-4 py-4 text-lg text-white">
+	<header class="px-4 py-4 text-lg text-black dark:text-white">
 		<div class="mx-auto flex w-full justify-between px-8 py-3">
 			<div class="h-auto w-12">
-				<a href="#hero" on:click={(e) => scrollTo('hero', e)}>
+				<a href="#hero" on:click={(e) => handleClick('hero', e)}>
 					<img src={logoSrc} alt="Logo" />
 				</a>
 			</div>
 
-			<nav>
-				<ol class="flex items-center justify-between space-x-10">
-					<li><a href="#projects" on:click={(e) => handleClick('projects', e)}>Projects</a></li>
+			<ToggleButton />
+			<nav class="relative">
+				<!-- Hamburger Button for small devices -->
+				<button
+					class="flex h-6 w-6 flex-col items-center justify-between space-y-1 lg:hidden"
+					on:click={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+					on:keydown={toggleMobileMenu}
+					aria-label="Toggle navigation menu"
+				>
+					<span class="block h-0.5 w-full bg-white"></span>
+					<span class="block h-0.5 w-full bg-white"></span>
+					<span class="block h-0.5 w-full bg-white"></span>
+				</button>
+
+				<!-- Menu items -->
+				<ol class={`space-x-10 lg:flex ${isMobileMenuOpen ? 'block' : 'hidden'} lg:block`}>
 					<li><a href="#about-me" on:click={(e) => handleClick('about-me', e)}>About</a></li>
+					<li>
+						<a href="#experience" on:click={(e) => handleClick('experience', e)}>Experience</a>
+					</li>
+					<li><a href="#projects" on:click={(e) => handleClick('projects', e)}>Projects</a></li>
 				</ol>
 			</nav>
 		</div>
@@ -124,7 +152,7 @@
 </div>
 
 <style>
-	header {
-		width: 100%;
+	.space-x-10 > *:not(:last-child) {
+		margin-right: 2.5rem;
 	}
 </style>

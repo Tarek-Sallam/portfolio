@@ -1,11 +1,11 @@
 <script>
 	/* IMPORT ALL COMPONENTS */
-	import AboutMe from './AboutMe.svelte';
-	import Experience from './Experience.svelte';
-	import Header from './Header.svelte';
-	import Hero from './Hero.svelte';
-	import Projects from './Projects.svelte';
-	import Three from './Three.svelte';
+	import AboutMe from '$lib/components/AboutMe.svelte';
+	import Experience from '$lib/components/Experience.svelte';
+	import Header from '$lib/components/Header.svelte';
+	import Hero from '$lib/components/Hero.svelte';
+	import Projects from '$lib/components/Projects.svelte';
+	import Three from '$lib/components/Three.svelte';
 
 	/* IMPORT ALL LIBRARIES */
 	import { onMount, onDestroy } from 'svelte';
@@ -13,7 +13,7 @@
 	import ScrollToPlugin from 'gsap/ScrollToPlugin';
 
 	/* IMPORT STORES */
-	import { cameraStore, sectionStore, scrollStore } from '../store.js';
+	import { cameraStore, sectionStore, scrollStore, darkModeStore } from '$lib/store.js';
 
 	// DEFAULT CLASSES FOR THE COMPONENTS
 	const defaultClass = 'z-10 container mx-auto min-h-screen flex justify-center items-center';
@@ -40,6 +40,9 @@
 	function updateScroll(newScroll) {
 		scrollStore.set(newScroll);
 	}
+	function updateDarkModeStore(isDark) {
+		darkModeStore.set(isDark);
+	}
 
 	// STORE SUBSCRIPTIONS
 	function onSectionSubscribe(section) {
@@ -63,6 +66,14 @@
 			duration: duration * factor,
 			ease: 'power1.inOut'
 		});
+	}
+
+	function matchTheme() {
+		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			updateDarkModeStore(true);
+		} else {
+			updateDarkModeStore(false);
+		}
 	}
 
 	// CONSTRUCTION, INIT, DESTROY
@@ -95,6 +106,7 @@
 		updateSection(0);
 		scrollToSection(0, 0);
 		updateScroll(false);
+		matchTheme();
 	}
 
 	function destroy() {
@@ -158,7 +170,7 @@
 	});
 </script>
 
-<main class="relative flex min-h-screen flex-col bg-black">
+<main class="relative flex min-h-screen flex-col bg-black dark:bg-white">
 	<Three {duration} className="z-0 fixed top-0 left-0 right-0 w-full " />
 	<Header {scrollToSection} {timeoutDuration} className="z-20 fixed top-0 left-0 right-0" />
 	<Hero className={defaultClass} />

@@ -5,13 +5,13 @@
 	import { gsap } from 'gsap';
 
 	/* STORE IMPORTS */
-	import { cameraStore } from '../store';
+	import { cameraStore, darkModeStore } from '$lib/store';
 
 	/* SHADER IMPORTS */
-	import fragmentShader from './shaders/fragment.glsl';
-	import vertexShader from './shaders/vertex.glsl';
-	import Page from '../../routes/+page.svelte';
+	import fragmentShader from '$lib/components/shaders/fragment.glsl';
+	import vertexShader from '$lib/components/shaders/vertex.glsl';
 	import { handlers } from 'svelte/legacy';
+	import { pass } from 'three/tsl';
 
 	/* PROPS */
 	export let className = '';
@@ -41,11 +41,12 @@
 	let particlePositions, linePositions, lineColors;
 	let particlesBuffer, particlesMaterial, linesBuffer, linesMaterial;
 	let lines, particles;
+	let currentColor = 0xffffff;
 
 	let particleData = []; // the corresponding data for the particles
 	let boundData = []; // the data for the particle bounds
 
-	let cameraUnsubscribe; // for store cleanup
+	let cameraUnsubscribe, darkModeUnsubscribe; // for store cleanup
 
 	// STORE SUBSCRIPTIONS
 	function onCameraSubscribe(position) {
@@ -56,6 +57,21 @@
 		}
 	}
 
+	function onDarkModeSubscribe(darkMode) {
+		if (particlesMaterial && scene) {
+			renderer.setClearColor(new THREE.Color(currentColor), 1);
+			if (darkMode) {
+				currentColor = 0xffffff;
+				particlesMaterial.blending = THREE.NormalBlending;
+				linesMaterial.blending = THREE.NormalBlending;
+			} else {
+				currentColor = 0x000000;
+				linesMaterial.blending = THREE.NormalBlending;
+				particlesMaterial.blending = THREE.NormalBlending;
+			}
+			particlesMaterial.uniforms.uColor.value = new THREE.Color(currentColor);
+		}
+	}
 	// GENERAL PURPOSE FUNCTIONS
 	function calculateXZIntersect(ray) {
 		const origin = ray.origin; // get the origin of the ray
@@ -149,7 +165,7 @@
 		// if the distance is small enough
 		if (dist < maxDistance) {
 			// calculate the alpha level of the line
-			const alpha = 1 - dist / maxDistance;
+			let alpha = 1 - dist / maxDistance;
 
 			// add the x, y, z of the first point, then add the x, y, z of the second point
 			linePositions[vertexPos++] = particlePositions[i * 3];
@@ -160,7 +176,11 @@
 			linePositions[vertexPos++] = particlePositions[j * 3 + 1];
 			linePositions[vertexPos++] = particlePositions[j * 3 + 2];
 
-			// add the alpha value for the points
+			//add the alpha value for the points
+			if (currentColor === 0x000000) {
+				alpha = 1 - alpha;
+			}
+
 			lineColors[colorPos++] = alpha;
 			lineColors[colorPos++] = alpha;
 			lineColors[colorPos++] = alpha;
@@ -237,6 +257,10 @@
 			onCameraSubscribe(position);
 		});
 
+		darkModeUnsubscribe = darkModeStore.subscribe((darkMode) => {
+			onDarkModeSubscribe(darkMode);
+		});
+
 		// SET THE CAMERA POSITIONS
 		cameraPositions = [
 			new THREE.Vector3(2000, 800, 0),
@@ -305,6 +329,7 @@
 		renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setAnimationLoop(animate);
+		renderer.setClearColor(new THREE.Color(0x000000), 1);
 
 		// LOOP THROUGH MY PARTICLES AND SET THEIR POSITIONS AND VELOCITIES
 		for (let i = 0; i < numParticles; i++) {
@@ -366,6 +391,9 @@
 		// CLEANUP STORES
 		if (cameraUnsubscribe) {
 			cameraUnsubscribe();
+		}
+		if (darkModeUnsubscribe) {
+			darkModeUnsubscribe();
 		}
 	}
 
