@@ -18,15 +18,15 @@
 	export let duration;
 
 	// GLOBAL CONSTANTS
-	const numParticles = 100; // number of particles in three scene
+	const numParticles = 150; // number of particles in three scene
 	const xLength = 4000; // spanning of the particles in the x-direction (forward-back)
 	const yLength = 0; // spanning of the particles in the y-direction (up-down)
 	const zLength = 4000; // spanning of the particles in the z-direction (left-right)
 	const maxDistance = 700; // the maximum distance for a line to be drawn between two particles
 	const awaySpeed = 0.5; // the speed that the particles move away the mouse
-	const speed = 5; // the speed of the particles moving generally
-	const boundX = 50; // the bound size for the particle movement in the x-direction (forward-back)
-	const boundZ = 50; // the bound size for the particle movement in the z-direction (left-right)
+	const speed = 8; // the speed of the particles moving generally
+	const boundX = 200; // the bound size for the particle movement in the x-direction (forward-back)
+	const boundZ = 200; // the bound size for the particle movement in the z-direction (left-right)
 	const intersectRadius = 300; // the radius of which the mouse causes the particles to move up
 	const maxHeight = 150; // the maximum height for a particle to travel up-down when mouse hovering
 
