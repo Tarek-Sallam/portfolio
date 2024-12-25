@@ -23,7 +23,7 @@
 	const timeoutDuration = duration * 1000 + 100; // time out scroll duration in ms
 
 	// GLOBAL VARIABLES
-	let isScrolling = false; // is page scrolling determined by store
+	let isScrolling = false; // is page scrolling determined by store\
 	let currentSection = 0; // currentSection of the page determined by store
 	let scrollToSection; // Prop to point to scrollTo function
 	let sections; // An array to hold the section HTML elements
@@ -51,7 +51,6 @@
 	function onScrollSubscribe(scroll) {
 		isScrolling = scroll;
 	}
-
 	// GENERAL PURPOSE FUNCTIONS
 	function scrollTo(index, factor) {
 		// get the target section element given the index
@@ -70,8 +69,10 @@
 
 	function matchTheme() {
 		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			document.body.classList.add('dark');
 			updateDarkModeStore(true);
 		} else {
+			document.body.classList.remove('dark');
 			updateDarkModeStore(false);
 		}
 	}
@@ -132,7 +133,6 @@
 
 		// if we are currently scrolling, exit the function (no overlap)
 		if (isScrolling) return;
-
 		// lock the scrolling boolean (prevent overlap)
 		updateScroll(true);
 

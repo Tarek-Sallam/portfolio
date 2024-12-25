@@ -165,7 +165,10 @@
 		// if the distance is small enough
 		if (dist < maxDistance) {
 			// calculate the alpha level of the line
-			let alpha = 1 - dist / maxDistance;
+			const alpha =
+				currentColor === 0xffffff
+					? (1 - dist / maxDistance) * 0.6
+					: Math.max(0, dist / maxDistance - 0.1 * (1 - dist / maxDistance));
 
 			// add the x, y, z of the first point, then add the x, y, z of the second point
 			linePositions[vertexPos++] = particlePositions[i * 3];
@@ -175,11 +178,6 @@
 			linePositions[vertexPos++] = particlePositions[j * 3];
 			linePositions[vertexPos++] = particlePositions[j * 3 + 1];
 			linePositions[vertexPos++] = particlePositions[j * 3 + 2];
-
-			//add the alpha value for the points
-			if (currentColor === 0x000000) {
-				alpha = 1 - alpha;
-			}
 
 			lineColors[colorPos++] = alpha;
 			lineColors[colorPos++] = alpha;
@@ -296,7 +294,7 @@
 			vertexShader: vertexShader,
 			fragmentShader: fragmentShader,
 			transparent: true,
-			blending: THREE.AdditiveBlending
+			blending: THREE.NoBlending
 		});
 		particles = new THREE.Points(particlesBuffer, particlesMaterial);
 
@@ -306,7 +304,7 @@
 		linesBuffer = new THREE.BufferGeometry();
 		linesMaterial = new THREE.LineBasicMaterial({
 			vertexColors: true,
-			blending: THREE.AdditiveBlending,
+			blending: THREE.NormalBlending,
 			transparent: true
 		});
 		lines = new THREE.LineSegments(linesBuffer, linesMaterial);

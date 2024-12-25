@@ -1,25 +1,45 @@
 <script>
+	import { darkModeStore } from '$lib/store';
 	export let className = '';
-
-	const handleContact = () => {
-		alert('Contact me at example@example.com!');
-	};
-
-	const handleResume = () => {
-		window.open('', '_blank');
-	};
+	let githubIcon, mailIcon, linkedinIcon, resumeIcon;
+	$: {
+		githubIcon = $darkModeStore ? './github_w.svg' : './github.svg';
+		mailIcon = $darkModeStore ? './mail_w.svg' : './mail.svg';
+		linkedinIcon = $darkModeStore ? './linkedin_w.svg' : './linkedin.svg';
+		resumeIcon = $darkModeStore ? './resume_w.svg' : './resume.svg';
+	}
 </script>
 
 <section id="hero" class={className}>
-	<div class="flex flex-grow items-center justify-center text-black dark:text-white">
-		<div class="text-center">
-			<h1 class="mb-4 text-6xl font-bold">Tarek Sallam</h1>
-			<div>
-				<button class="mb-2 rounded-md bg-blue-500 px-6 py-2" on:click={handleContact}>
-					Contact Me
-				</button>
-				<button class="rounded-md bg-green-500 px-6 py-2" on:click={handleResume}> Resume </button>
-			</div>
+	<div class="flex min-h-screen flex-col items-center justify-center text-black dark:text-white">
+		<h1 class="font-zen mb-6 text-center text-8xl">TAREK SALLAM</h1>
+		<div class="mb-4 flex items-center justify-between space-x-12">
+			<a
+				href="https://github.com/Tarek-Sallam"
+				target="_blank"
+				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
+			>
+				<img src={githubIcon} alt="GitHub" class="h-12 w-12" />
+			</a>
+			<a
+				href="mailto:tarek.i.sallam@gmail.com"
+				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
+			>
+				<img src={mailIcon} alt="Email" class="h-12 w-12" />
+			</a>
+			<a
+				href="https://www.linkedin.com/in/tareksallam"
+				target="_blank"
+				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
+			>
+				<img src={linkedinIcon} alt="LinkedIn" class="h-12 w-12" />
+			</a>
+			<a
+				href="./resume.pdf"
+				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
+			>
+				<img src={resumeIcon} alt="CV" class="h-12 w-12" />
+			</a>
 		</div>
 	</div>
 </section>

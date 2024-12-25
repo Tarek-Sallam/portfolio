@@ -116,16 +116,14 @@
 </script>
 
 <div class={className}>
-	<header class="px-4 py-4 text-lg text-black dark:text-white">
-		<div class="mx-auto flex w-full justify-between px-8 py-3">
+	<header class="px-0 py-4 font-mono text-xl text-black lg:px-4 dark:text-white">
+		<div class="mx-auto flex w-full justify-between px-10 py-3">
 			<div class="h-auto w-12">
 				<a href="#hero" on:click={(e) => handleClick('hero', e)}>
 					<img src={logoSrc} alt="Logo" />
 				</a>
 			</div>
-
-			<ToggleButton />
-			<nav class="relative">
+			<nav class="flex items-center justify-between space-x-10">
 				<!-- Hamburger Button for small devices -->
 				<button
 					class="flex h-6 w-6 flex-col items-center justify-between space-y-1 lg:hidden"
@@ -146,6 +144,7 @@
 					</li>
 					<li><a href="#projects" on:click={(e) => handleClick('projects', e)}>Projects</a></li>
 				</ol>
+				<ToggleButton />
 			</nav>
 		</div>
 	</header>
