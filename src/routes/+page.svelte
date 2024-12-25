@@ -4,3 +4,10 @@
 </script>
 
 <Main />
+
+<style>
+	:global(html),
+	:global(body) {
+		overflow: hidden; /* Completely disables scrolling and hides scrollbar */
+	}
+</style>

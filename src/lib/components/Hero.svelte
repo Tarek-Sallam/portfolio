@@ -11,7 +11,7 @@
 </script>
 
 <section id="hero" class={className}>
-	<div class="flex flex-grow items-center justify-center text-white">
+	<div class="flex flex-grow items-center justify-center text-black dark:text-white">
 		<div class="text-center">
 			<h1 class="mb-4 text-6xl font-bold">Tarek Sallam</h1>
 			<div>
