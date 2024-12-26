@@ -3,7 +3,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import * as THREE from 'three';
 	import { gsap } from 'gsap';
-
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	/* STORE IMPORTS */
 	import { cameraStore, darkModeStore } from '$lib/store';
 
@@ -11,7 +11,8 @@
 	import fragmentShader from '$lib/components/shaders/fragment.glsl';
 	import vertexShader from '$lib/components/shaders/vertex.glsl';
 	import { handlers } from 'svelte/legacy';
-	import { pass } from 'three/tsl';
+	import { label, pass } from 'three/tsl';
+	import { generatePdSamplePointInitializer } from 'three/examples/jsm/shaders/PoissonDenoiseShader.js';
 
 	/* PROPS */
 	export let className = '';
@@ -30,12 +31,20 @@
 	const intersectRadius = 300; // the radius of which the mouse causes the particles to move up
 	const maxHeight = 150; // the maximum height for a particle to travel up-down when mouse hovering
 
+	// the positions of the cameras and the index/position
+	const cameraPositions = [
+		[2000, 800, 0],
+		[2000, 500, 0],
+		[2000 * Math.cos(Math.PI / 8), 500, 2000 * Math.sin(Math.PI / 8)],
+		[2000 * Math.cos(Math.PI / 4), 700, 2000 * Math.sin(Math.PI / 4)]
+	];
+
 	// GLOBAL VARIABLES
 	let canvas; // to bind to canvas element
 
 	let scene, camera, renderer; // for webgl
 	let raycaster, pointer; // for determine where the mouse is pointing
-	let cameraPositions, cameraPosition; // the positions of the cameras and the index/position
+	let cameraPosition;
 
 	// positions, textures, and mesh variables for the lines and particles
 	let particlePositions, linePositions, lineColors;
@@ -47,6 +56,8 @@
 	let boundData = []; // the data for the particle bounds
 
 	let cameraUnsubscribe, darkModeUnsubscribe; // for store cleanup
+
+	let timeline; // for gsap timeline
 
 	// STORE SUBSCRIPTIONS
 	function onCameraSubscribe(position) {
@@ -192,19 +203,6 @@
 
 		return [vertexPos, colorPos, connected];
 	}
-	function moveCamera(position) {
-		// gsap tween moves the camera to the new position, and makes sure every update to look at the origin
-		gsap.to(camera.position, {
-			x: cameraPositions[position].x,
-			y: cameraPositions[position].y,
-			z: cameraPositions[position].z,
-			duration: duration,
-			ease: 'power1.inOut',
-			onUpdate: () => {
-				camera.lookAt(0, 0, 0);
-			}
-		});
-	}
 
 	// ANIMATION RENDER LOOP
 	function animate() {
@@ -250,6 +248,7 @@
 
 	// CONSTRUCTION, INIT AND DESTRUCTION
 	function construct() {
+		gsap.registerPlugin(ScrollTrigger);
 		// SET SUBSCRIPTION CALLBACKS
 		cameraUnsubscribe = cameraStore.subscribe((position) => {
 			onCameraSubscribe(position);
@@ -260,12 +259,6 @@
 		});
 
 		// SET THE CAMERA POSITIONS
-		cameraPositions = [
-			new THREE.Vector3(2000, 800, 0),
-			new THREE.Vector3(2000, 500, 0),
-			new THREE.Vector3(2000 * Math.cos(Math.PI / 8), 500, 2000 * Math.sin(Math.PI / 8)),
-			new THREE.Vector3(2000 * Math.cos(Math.PI / 4), 700, 2000 * Math.sin(Math.PI / 4))
-		];
 
 		// CREATE MY THREE RAYCASTER AND POINTER
 		raycaster = new THREE.Raycaster();
@@ -312,13 +305,38 @@
 		// SET THE EVENT LISTENERS
 		window.addEventListener('resize', handleResize);
 		window.addEventListener('pointermove', handlePointer);
+
+		// create the gsap timeline
+		timeline = gsap.timeline({
+			scrollTrigger: {
+				trigger: 'body',
+				start: 'top top',
+				end: `bottom bottom`,
+				scrub: true
+			}
+		});
+
+		// for each camera position add a tween into the timeline
+		cameraPositions.forEach((pos, index) => {
+			if (index > 0) {
+				const previousPos = cameraPositions[index - 1];
+				// Interpolate from the previous position to the current position
+				timeline.to(camera.position, {
+					x: pos[0],
+					y: pos[1],
+					z: pos[2],
+					ease: 'power1.inOut',
+					onUpdate: () => camera.lookAt(0, 0, 0)
+				});
+			}
+		});
 	}
 
 	function init() {
 		// SET MY CAMERA POSITION TO POSITION 1, AND LOOK AT 0,0,0
-		camera.position.x = cameraPositions[0].x;
-		camera.position.y = cameraPositions[0].y;
-		camera.position.z = cameraPositions[0].z;
+		camera.position.x = cameraPositions[0][0];
+		camera.position.y = cameraPositions[0][1];
+		camera.position.z = cameraPositions[0][2];
 		camera.lookAt(0, 0, 0);
 
 		cameraPosition = 0; // ADJUST THE CAMERA INDEX VARIABLE ACCORDINGLY
