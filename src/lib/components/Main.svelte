@@ -47,10 +47,8 @@
 		let sectionInfo = [];
 		sections.forEach((section) => {
 			const height = section.getBoundingClientRect().height;
-			const top = section.offsetTop;
 			sectionInfo.push({
-				section: section,
-				top: top,
+				id: `#${section.id}`,
 				height: height
 			});
 		});
@@ -81,7 +79,7 @@
 </script>
 
 <main class="relative flex min-h-screen flex-col bg-black dark:bg-white">
-	<Three className="z-0 fixed top-0 left-0 right-0 w-full " />
+	<Three {animDuration} className="z-0 fixed top-0 left-0 right-0 w-full " />
 	<Header {animDuration} className="z-20 fixed top-0 left-0 right-0" />
 	<Hero className={defaultClass} />
 	<AboutMe className={defaultClass} />

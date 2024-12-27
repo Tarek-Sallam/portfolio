@@ -4,18 +4,16 @@
 	import * as THREE from 'three';
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
 	/* STORE IMPORTS */
-	import { darkModeStore, sectionInfoStore } from '$lib/store';
+	import { darkModeStore, scrollStore, sectionInfoStore } from '$lib/store';
 
 	/* SHADER IMPORTS */
 	import fragmentShader from '$lib/components/shaders/fragment.glsl';
 	import vertexShader from '$lib/components/shaders/vertex.glsl';
-	import { handlers } from 'svelte/legacy';
-	import { label, pass, toneMapping } from 'three/tsl';
-	import { generatePdSamplePointInitializer } from 'three/examples/jsm/shaders/PoissonDenoiseShader.js';
-
 	/* PROPS */
 	export let className = '';
+	export let animDuration;
 
 	// GLOBAL CONSTANTS
 	const numParticles = 150; // number of particles in three scene
@@ -43,7 +41,6 @@
 
 	let scene, camera, renderer; // for webgl
 	let raycaster, pointer; // for determine where the mouse is pointing
-	let cameraPosition;
 
 	// positions, textures, and mesh variables for the lines and particles
 	let particlePositions, linePositions, lineColors;
@@ -56,7 +53,7 @@
 
 	let darkModeUnsubscribe; // for store cleanup
 
-	let timeline; // for gsap timeline
+	let timeline;
 
 	function onDarkModeSubscribe(darkMode) {
 		if (particlesMaterial && scene) {
@@ -74,7 +71,13 @@
 		}
 	}
 
-	$: if (camera && $sectionInfoStore) {
+	$: if (camera && $sectionInfoStore && $scrollStore && $scrollStore.isScroll) {
+		timeline.kill();
+		const idx = $sectionInfoStore.findIndex((section) => section.id === $scrollStore.id);
+		scrollTo(idx);
+	}
+
+	$: if (camera && $sectionInfoStore && $scrollStore && !$scrollStore.isScroll) {
 		updateGsapTimeline($sectionInfoStore);
 	}
 
@@ -212,28 +215,47 @@
 				scrub: true
 			}
 		});
-
 		sectionInfo.forEach((section, index) => {
-			if (index == 0) {
-				timeline.to(camera.position, {
-					x: cameraPositions[0][0],
-					y: cameraPositions[0][1],
-					z: cameraPositions[0][2],
-					onUpdate: () => camera.lookAt(0, 0, 0),
-					ease: 'power1.inOut',
-					duration: 0
-				});
+			if (index === 0) {
+				timeline
+					.to(camera.position, {
+						x: cameraPositions[0][0],
+						y: cameraPositions[0][1],
+						z: cameraPositions[0][2],
+						onUpdate: () => {
+							camera.lookAt(0, 0, 0);
+						},
+						ease: 'power1.inOut',
+						duration: 0
+					})
+					.add(section.id);
 			}
 			if (index > 0) {
-				const relativeDuration = section.height / totalHeight;
-				timeline.to(camera.position, {
-					x: cameraPositions[index][0],
-					y: cameraPositions[index][1],
-					z: cameraPositions[index][2],
-					onUpdate: () => camera.lookAt(0, 0, 0),
-					ease: 'power1.inOut',
-					duration: relativeDuration
-				});
+				const relativeDuration = sectionInfo[index - 1].height / totalHeight;
+				timeline
+					.to(camera.position, {
+						x: cameraPositions[index][0],
+						y: cameraPositions[index][1],
+						z: cameraPositions[index][2],
+						onUpdate: () => {
+							camera.lookAt(0, 0, 0);
+						},
+						ease: 'power1.inOut',
+						duration: relativeDuration
+					})
+					.add(section.id);
+			}
+		});
+	}
+	function scrollTo(position) {
+		gsap.to(camera.position, {
+			x: cameraPositions[position][0],
+			y: cameraPositions[position][1],
+			z: cameraPositions[position][2],
+			duration: animDuration,
+			ease: 'power1.inOut',
+			onUpdate: () => {
+				camera.lookAt(0, 0, 0);
 			}
 		});
 	}
@@ -342,8 +364,6 @@
 		camera.position.z = cameraPositions[0][2];
 		camera.lookAt(0, 0, 0);
 
-		cameraPosition = 0; // ADJUST THE CAMERA INDEX VARIABLE ACCORDINGLY
-
 		// SETUP THE RENDERER
 		renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 		renderer.setPixelRatio(window.devicePixelRatio);
@@ -402,7 +422,9 @@
 		}
 
 		// KILL TWEENS FOR GSAP
-		gsap.killTweensOf(camera);
+		if (timeline) {
+			timeline.kill();
+		}
 
 		// REMOVE EVENT LISTENERS
 		window.removeEventListener('resize', handleResize);

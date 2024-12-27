@@ -6,9 +6,9 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { gsap } from 'gsap';
 	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	/* IMPORT STORES */
-	import { darkModeStore, sectionInfoStore } from '../store';
+	import { darkModeStore, sectionInfoStore, scrollStore } from '../store';
 
 	/* PROPS */
 	export let className = '';
@@ -25,15 +25,18 @@
 
 	// GENERIC FUNCTIONS
 	function scrollTo(id) {
+		if ($scrollStore && $scrollStore.isScroll) return;
 		document.body.classList.add('overflow-hidden');
 		document.documentElement.classList.add('overflow-hidden');
+		scrollStore.set({ isScroll: true, id: id });
 		gsap.to(window, {
-			duration: 1,
+			duration: animDuration,
 			ease: 'power1.inOut',
 			scrollTo: id,
 			onComplete: () => {
 				document.body.classList.remove('overflow-hidden');
 				document.documentElement.classList.remove('overflow-hidden');
+				scrollStore.set({ isScroll: false, id: $scrollStore.id });
 			}
 		});
 	}
