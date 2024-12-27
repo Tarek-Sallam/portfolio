@@ -3,19 +3,17 @@
 	import { onMount, onDestroy } from 'svelte';
 	import * as THREE from 'three';
 	import { gsap } from 'gsap';
+	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 	/* STORE IMPORTS */
-	import { cameraStore, darkModeStore } from '$lib/store';
+	import { darkModeStore, scrollStore, sectionInfoStore } from '$lib/store';
 
 	/* SHADER IMPORTS */
 	import fragmentShader from '$lib/components/shaders/fragment.glsl';
 	import vertexShader from '$lib/components/shaders/vertex.glsl';
-	import { handlers } from 'svelte/legacy';
-	import { pass } from 'three/tsl';
-
 	/* PROPS */
 	export let className = '';
-	export let duration;
+	export let animDuration;
 
 	// GLOBAL CONSTANTS
 	const numParticles = 150; // number of particles in three scene
@@ -30,12 +28,19 @@
 	const intersectRadius = 300; // the radius of which the mouse causes the particles to move up
 	const maxHeight = 150; // the maximum height for a particle to travel up-down when mouse hovering
 
+	// the positions of the cameras and the index/position
+	const cameraPositions = [
+		[2000, 800, 0],
+		[2000, 500, 0],
+		[2000 * Math.cos(Math.PI / 8), 500, 2000 * Math.sin(Math.PI / 8)],
+		[2000 * Math.cos(Math.PI / 4), 700, 2000 * Math.sin(Math.PI / 4)]
+	];
+
 	// GLOBAL VARIABLES
 	let canvas; // to bind to canvas element
 
 	let scene, camera, renderer; // for webgl
 	let raycaster, pointer; // for determine where the mouse is pointing
-	let cameraPositions, cameraPosition; // the positions of the cameras and the index/position
 
 	// positions, textures, and mesh variables for the lines and particles
 	let particlePositions, linePositions, lineColors;
@@ -46,16 +51,9 @@
 	let particleData = []; // the corresponding data for the particles
 	let boundData = []; // the data for the particle bounds
 
-	let cameraUnsubscribe, darkModeUnsubscribe; // for store cleanup
+	let darkModeUnsubscribe; // for store cleanup
 
-	// STORE SUBSCRIPTIONS
-	function onCameraSubscribe(position) {
-		// if the camera exists, update the position and move it to the new position
-		if (camera) {
-			cameraPosition = position;
-			moveCamera(cameraPosition);
-		}
-	}
+	let timeline;
 
 	function onDarkModeSubscribe(darkMode) {
 		if (particlesMaterial && scene) {
@@ -72,6 +70,17 @@
 			particlesMaterial.uniforms.uColor.value = new THREE.Color(currentColor);
 		}
 	}
+
+	$: if (camera && $sectionInfoStore && $scrollStore && $scrollStore.isScroll) {
+		timeline.kill();
+		const idx = $sectionInfoStore.findIndex((section) => section.id === $scrollStore.id);
+		scrollTo(idx);
+	}
+
+	$: if (camera && $sectionInfoStore && $scrollStore && !$scrollStore.isScroll) {
+		updateGsapTimeline($sectionInfoStore);
+	}
+
 	// GENERAL PURPOSE FUNCTIONS
 	function calculateXZIntersect(ray) {
 		const origin = ray.origin; // get the origin of the ray
@@ -192,13 +201,58 @@
 
 		return [vertexPos, colorPos, connected];
 	}
-	function moveCamera(position) {
-		// gsap tween moves the camera to the new position, and makes sure every update to look at the origin
+	function updateGsapTimeline(sectionInfo) {
+		if (timeline) {
+			timeline.kill();
+		}
+		const totalHeight = sectionInfo.reduce((sum, section) => sum + section.height, 0);
+
+		timeline = gsap.timeline({
+			scrollTrigger: {
+				trigger: 'body',
+				start: 'top top',
+				end: 'bottom bottom',
+				scrub: true
+			}
+		});
+		sectionInfo.forEach((section, index) => {
+			if (index === 0) {
+				timeline
+					.to(camera.position, {
+						x: cameraPositions[0][0],
+						y: cameraPositions[0][1],
+						z: cameraPositions[0][2],
+						onUpdate: () => {
+							camera.lookAt(0, 0, 0);
+						},
+						ease: 'power1.inOut',
+						duration: 0
+					})
+					.add(section.id);
+			}
+			if (index > 0) {
+				const relativeDuration = sectionInfo[index - 1].height / totalHeight;
+				timeline
+					.to(camera.position, {
+						x: cameraPositions[index][0],
+						y: cameraPositions[index][1],
+						z: cameraPositions[index][2],
+						onUpdate: () => {
+							camera.lookAt(0, 0, 0);
+						},
+						ease: 'power1.inOut',
+						duration: relativeDuration
+					})
+					.add(section.id);
+			}
+		});
+	}
+	function scrollTo(position) {
 		gsap.to(camera.position, {
-			x: cameraPositions[position].x,
-			y: cameraPositions[position].y,
-			z: cameraPositions[position].z,
-			duration: duration,
+			x: cameraPositions[position][0],
+			y: cameraPositions[position][1],
+			z: cameraPositions[position][2],
+			duration: animDuration,
 			ease: 'power1.inOut',
 			onUpdate: () => {
 				camera.lookAt(0, 0, 0);
@@ -250,23 +304,12 @@
 
 	// CONSTRUCTION, INIT AND DESTRUCTION
 	function construct() {
+		gsap.registerPlugin(ScrollTrigger);
 		// SET SUBSCRIPTION CALLBACKS
-		cameraUnsubscribe = cameraStore.subscribe((position) => {
-			onCameraSubscribe(position);
-		});
 
 		darkModeUnsubscribe = darkModeStore.subscribe((darkMode) => {
 			onDarkModeSubscribe(darkMode);
 		});
-
-		// SET THE CAMERA POSITIONS
-		cameraPositions = [
-			new THREE.Vector3(2000, 800, 0),
-			new THREE.Vector3(2000, 500, 0),
-			new THREE.Vector3(2000 * Math.cos(Math.PI / 8), 500, 2000 * Math.sin(Math.PI / 8)),
-			new THREE.Vector3(2000 * Math.cos(Math.PI / 4), 700, 2000 * Math.sin(Math.PI / 4))
-		];
-
 		// CREATE MY THREE RAYCASTER AND POINTER
 		raycaster = new THREE.Raycaster();
 		pointer = new THREE.Vector2();
@@ -316,12 +359,10 @@
 
 	function init() {
 		// SET MY CAMERA POSITION TO POSITION 1, AND LOOK AT 0,0,0
-		camera.position.x = cameraPositions[0].x;
-		camera.position.y = cameraPositions[0].y;
-		camera.position.z = cameraPositions[0].z;
+		camera.position.x = cameraPositions[0][0];
+		camera.position.y = cameraPositions[0][1];
+		camera.position.z = cameraPositions[0][2];
 		camera.lookAt(0, 0, 0);
-
-		cameraPosition = 0; // ADJUST THE CAMERA INDEX VARIABLE ACCORDINGLY
 
 		// SETUP THE RENDERER
 		renderer.setSize(canvas.clientWidth, canvas.clientHeight);
@@ -369,6 +410,7 @@
 		scene.add(particles);
 		scene.add(lines);
 	}
+
 	function destroy() {
 		// KILL RENDERER AND SCENE FOR THREE
 		if (renderer) {
@@ -380,16 +422,15 @@
 		}
 
 		// KILL TWEENS FOR GSAP
-		gsap.killTweensOf(camera);
+		if (timeline) {
+			timeline.kill();
+		}
 
 		// REMOVE EVENT LISTENERS
 		window.removeEventListener('resize', handleResize);
 		window.removeEventListener('pointermove', handlePointer);
 
 		// CLEANUP STORES
-		if (cameraUnsubscribe) {
-			cameraUnsubscribe();
-		}
 		if (darkModeUnsubscribe) {
 			darkModeUnsubscribe();
 		}
