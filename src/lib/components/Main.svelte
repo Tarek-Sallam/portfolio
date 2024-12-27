@@ -19,6 +19,7 @@
 	const defaultClass = 'z-10 container mx-auto min-h-screen flex justify-center items-center';
 
 	// CONSTANTS
+	const animDuration = 1.5;
 
 	// GLOBAL VARIABLES
 
@@ -29,7 +30,6 @@
 	function updateSectionInfoStore(info) {
 		sectionInfoStore.set(info);
 	}
-
 	// STORE SUBSCRIPTIONS
 
 	// GENERAL PURPOSE FUNCTIONS
@@ -82,7 +82,7 @@
 
 <main class="relative flex min-h-screen flex-col bg-black dark:bg-white">
 	<Three className="z-0 fixed top-0 left-0 right-0 w-full " />
-	<!-- <Header {scrollToSection} {timeoutDuration} className="z-20 fixed top-0 left-0 right-0" /> -->
+	<Header {animDuration} className="z-20 fixed top-0 left-0 right-0" />
 	<Hero className={defaultClass} />
 	<AboutMe className={defaultClass} />
 	<Experience className={defaultClass} />

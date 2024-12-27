@@ -8,12 +8,11 @@
 	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 	/* IMPORT STORES */
-	import { darkModeStore } from '../store';
+	import { darkModeStore, sectionInfoStore } from '../store';
 
 	/* PROPS */
 	export let className = '';
-	export let scrollToSection;
-	export let timeoutDuration;
+	export let animDuration;
 
 	/* GLOBAL CONSTANTS */
 	let logoSrc;
@@ -22,84 +21,38 @@
 	}
 
 	/* GLOBAL VARIABLES */
-	let scrollTo;
-	let isScrolling; // tracks the scroll store
-	let currentSection; //  tracks the section store
 	let isMobileMenuOpen = false; // for hamburger menu
 
-	let sectionUnsubscribe, scrollUnsubscribe; // for store subscribe cleanup
-
-	// STORE SETTERS
-	function updateSection(newSection) {
-		sectionStore.set(newSection);
-	}
-	function updateScroll(newScroll) {
-		scrollStore.set(newScroll);
-	}
-
-	// STORE SUBSCRIPTIONS
-	function onSectionSubscribe(section) {
-		currentSection = section;
-	}
-	function onScrollSubscribe(scroll) {
-		isScrolling = scroll;
+	// GENERIC FUNCTIONS
+	function scrollTo(id) {
+		document.body.classList.add('overflow-hidden');
+		document.documentElement.classList.add('overflow-hidden');
+		gsap.to(window, {
+			duration: 1,
+			ease: 'power1.inOut',
+			scrollTo: id,
+			onComplete: () => {
+				document.body.classList.remove('overflow-hidden');
+				document.documentElement.classList.remove('overflow-hidden');
+			}
+		});
 	}
 
 	// CONSTRUCTION, INIT, DESTRUCTION
 	function construct() {
-		// HANDLE STORE SUBSCRIPTIONS
-		sectionUnsubscribe = sectionStore.subscribe((section) => {
-			onSectionSubscribe(section);
-		});
-		scrollUnsubscribe = scrollStore.subscribe((scroll) => {
-			onScrollSubscribe(scroll);
-		});
-
 		// REGISTER PLUGINS
 		gsap.registerPlugin(ScrollToPlugin);
 	}
 
 	function init() {}
 	function destroy() {
-		// CLEANUP STORES
-		if (sectionUnsubscribe) {
-			sectionUnsubscribe();
-		}
-		if (scrollUnsubscribe) {
-			scrollUnsubscribe();
-		}
+		gsap.killTweensOf(window);
 	}
 
 	// HANDLERS
 	function handleClick(id, e) {
-		// prevent default behaviour of clicking a link
 		e.preventDefault();
-
-		// if we are already scrolling then exit (prevent overlap)
-		if (isScrolling) return;
-
-		// lock the scroll boolean (prevent overlap)
-		updateScroll(true);
-
-		// get the index depending on which section fired this event
-		const idx = Array.from(document.querySelectorAll('section')).findIndex(
-			(section) => section.id === id
-		);
-
-		// if we are already in the given section, then unlock the scroll boolean and exit
-		if (currentSection === idx) {
-			updateScroll(false);
-			return;
-		}
-
-		// otherwise update the section, and scroll to the seciton
-		updateSection(idx);
-		scrollToSection(currentSection, 1);
-
-		// set timeout for the animation to run, before unlocking the scroll boolean (prevents overlap)
-		setTimeout(() => {
-			updateScroll(false);
-		}, timeoutDuration);
+		scrollTo(id);
 	}
 	function toggleMobileMenu(event) {
 		if (event.key === 'Enter' || event.key === ' ') {
@@ -119,7 +72,7 @@
 	<header class="px-0 py-4 font-mono text-xl text-black dark:text-white lg:px-4">
 		<div class="mx-auto flex w-full justify-between px-10 py-3">
 			<div class="h-auto w-12">
-				<a href="#hero" on:click={(e) => handleClick('hero', e)}>
+				<a href="#hero" on:click={(e) => handleClick('#hero', e)}>
 					<img src={logoSrc} alt="Logo" />
 				</a>
 			</div>
@@ -138,11 +91,11 @@
 
 				<!-- Menu items -->
 				<ol class={`space-x-10 lg:flex ${isMobileMenuOpen ? 'block' : 'hidden'} lg:block`}>
-					<li><a href="#about-me" on:click={(e) => handleClick('about-me', e)}>About</a></li>
+					<li><a href="#about-me" on:click={(e) => handleClick('#about-me', e)}>About</a></li>
 					<li>
-						<a href="#experience" on:click={(e) => handleClick('experience', e)}>Experience</a>
+						<a href="#experience" on:click={(e) => handleClick('#experience', e)}>Experience</a>
 					</li>
-					<li><a href="#projects" on:click={(e) => handleClick('projects', e)}>Projects</a></li>
+					<li><a href="#projects" on:click={(e) => handleClick('#projects', e)}>Projects</a></li>
 				</ol>
 				<ToggleButton />
 			</nav>
