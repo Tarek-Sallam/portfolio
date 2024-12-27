@@ -8,7 +8,7 @@
 	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 	/* IMPORT STORES */
-	import { sectionStore, scrollStore, darkModeStore } from '../store';
+	import { darkModeStore } from '../store';
 
 	/* PROPS */
 	export let className = '';
@@ -116,7 +116,7 @@
 </script>
 
 <div class={className}>
-	<header class="px-0 py-4 font-mono text-xl text-black lg:px-4 dark:text-white">
+	<header class="px-0 py-4 font-mono text-xl text-black dark:text-white lg:px-4">
 		<div class="mx-auto flex w-full justify-between px-10 py-3">
 			<div class="h-auto w-12">
 				<a href="#hero" on:click={(e) => handleClick('hero', e)}>

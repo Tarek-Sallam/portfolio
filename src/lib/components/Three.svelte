@@ -5,18 +5,17 @@
 	import { gsap } from 'gsap';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 	/* STORE IMPORTS */
-	import { cameraStore, darkModeStore } from '$lib/store';
+	import { darkModeStore, sectionInfoStore } from '$lib/store';
 
 	/* SHADER IMPORTS */
 	import fragmentShader from '$lib/components/shaders/fragment.glsl';
 	import vertexShader from '$lib/components/shaders/vertex.glsl';
 	import { handlers } from 'svelte/legacy';
-	import { label, pass } from 'three/tsl';
+	import { label, pass, toneMapping } from 'three/tsl';
 	import { generatePdSamplePointInitializer } from 'three/examples/jsm/shaders/PoissonDenoiseShader.js';
 
 	/* PROPS */
 	export let className = '';
-	export let duration;
 
 	// GLOBAL CONSTANTS
 	const numParticles = 150; // number of particles in three scene
@@ -55,18 +54,9 @@
 	let particleData = []; // the corresponding data for the particles
 	let boundData = []; // the data for the particle bounds
 
-	let cameraUnsubscribe, darkModeUnsubscribe; // for store cleanup
+	let darkModeUnsubscribe; // for store cleanup
 
 	let timeline; // for gsap timeline
-
-	// STORE SUBSCRIPTIONS
-	function onCameraSubscribe(position) {
-		// if the camera exists, update the position and move it to the new position
-		if (camera) {
-			cameraPosition = position;
-			moveCamera(cameraPosition);
-		}
-	}
 
 	function onDarkModeSubscribe(darkMode) {
 		if (particlesMaterial && scene) {
@@ -83,6 +73,11 @@
 			particlesMaterial.uniforms.uColor.value = new THREE.Color(currentColor);
 		}
 	}
+
+	$: if (camera && $sectionInfoStore) {
+		updateGsapTimeline($sectionInfoStore);
+	}
+
 	// GENERAL PURPOSE FUNCTIONS
 	function calculateXZIntersect(ray) {
 		const origin = ray.origin; // get the origin of the ray
@@ -203,6 +198,45 @@
 
 		return [vertexPos, colorPos, connected];
 	}
+	function updateGsapTimeline(sectionInfo) {
+		if (timeline) {
+			timeline.kill();
+		}
+		const totalHeight = sectionInfo.reduce((sum, section) => sum + section.height, 0);
+
+		timeline = gsap.timeline({
+			scrollTrigger: {
+				trigger: 'body',
+				start: 'top top',
+				end: 'bottom bottom',
+				scrub: true
+			}
+		});
+
+		sectionInfo.forEach((section, index) => {
+			if (index == 0) {
+				timeline.to(camera.position, {
+					x: cameraPositions[0][0],
+					y: cameraPositions[0][1],
+					z: cameraPositions[0][2],
+					onUpdate: () => camera.lookAt(0, 0, 0),
+					ease: 'power1.inOut',
+					duration: 0
+				});
+			}
+			if (index > 0) {
+				const relativeDuration = section.height / totalHeight;
+				timeline.to(camera.position, {
+					x: cameraPositions[index][0],
+					y: cameraPositions[index][1],
+					z: cameraPositions[index][2],
+					onUpdate: () => camera.lookAt(0, 0, 0),
+					ease: 'power1.inOut',
+					duration: relativeDuration
+				});
+			}
+		});
+	}
 
 	// ANIMATION RENDER LOOP
 	function animate() {
@@ -250,16 +284,10 @@
 	function construct() {
 		gsap.registerPlugin(ScrollTrigger);
 		// SET SUBSCRIPTION CALLBACKS
-		cameraUnsubscribe = cameraStore.subscribe((position) => {
-			onCameraSubscribe(position);
-		});
 
 		darkModeUnsubscribe = darkModeStore.subscribe((darkMode) => {
 			onDarkModeSubscribe(darkMode);
 		});
-
-		// SET THE CAMERA POSITIONS
-
 		// CREATE MY THREE RAYCASTER AND POINTER
 		raycaster = new THREE.Raycaster();
 		pointer = new THREE.Vector2();
@@ -305,31 +333,6 @@
 		// SET THE EVENT LISTENERS
 		window.addEventListener('resize', handleResize);
 		window.addEventListener('pointermove', handlePointer);
-
-		// create the gsap timeline
-		timeline = gsap.timeline({
-			scrollTrigger: {
-				trigger: 'body',
-				start: 'top top',
-				end: `bottom bottom`,
-				scrub: true
-			}
-		});
-
-		// for each camera position add a tween into the timeline
-		cameraPositions.forEach((pos, index) => {
-			if (index > 0) {
-				const previousPos = cameraPositions[index - 1];
-				// Interpolate from the previous position to the current position
-				timeline.to(camera.position, {
-					x: pos[0],
-					y: pos[1],
-					z: pos[2],
-					ease: 'power1.inOut',
-					onUpdate: () => camera.lookAt(0, 0, 0)
-				});
-			}
-		});
 	}
 
 	function init() {
@@ -387,6 +390,7 @@
 		scene.add(particles);
 		scene.add(lines);
 	}
+
 	function destroy() {
 		// KILL RENDERER AND SCENE FOR THREE
 		if (renderer) {
@@ -405,9 +409,6 @@
 		window.removeEventListener('pointermove', handlePointer);
 
 		// CLEANUP STORES
-		if (cameraUnsubscribe) {
-			cameraUnsubscribe();
-		}
 		if (darkModeUnsubscribe) {
 			darkModeUnsubscribe();
 		}

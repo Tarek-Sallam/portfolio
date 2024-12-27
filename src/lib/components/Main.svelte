@@ -13,45 +13,26 @@
 	import ScrollToPlugin from 'gsap/ScrollToPlugin';
 
 	/* IMPORT STORES */
-	import { cameraStore, sectionStore, scrollStore, darkModeStore } from '$lib/store.js';
+	import { darkModeStore, sectionInfoStore } from '$lib/store.js';
 
 	// DEFAULT CLASSES FOR THE COMPONENTS
 	const defaultClass = 'z-10 container mx-auto min-h-screen flex justify-center items-center';
 
 	// CONSTANTS
-	const duration = 1.3; // duration of page transitions
-	const timeoutDuration = duration * 1000 + 100; // time out scroll duration in ms
 
 	// GLOBAL VARIABLES
-	let isScrolling = false; // is page scrolling determined by store\
-	let currentSection = 0; // currentSection of the page determined by store
-	let scrollToSection; // Prop to point to scrollTo function
-	let sections; // An array to hold the section HTML elements
-
-	let sectionUnsubscribe, scrollUnsubscribe; // for store subscribe cleanup
 
 	// STORE SETTERS
-	function updateCamera(newPosition) {
-		cameraStore.set(newPosition);
-	}
-	function updateSection(newSection) {
-		sectionStore.set(newSection);
-	}
-	function updateScroll(newScroll) {
-		scrollStore.set(newScroll);
-	}
 	function updateDarkModeStore(isDark) {
 		darkModeStore.set(isDark);
 	}
+	function updateSectionInfoStore(info) {
+		sectionInfoStore.set(info);
+	}
 
 	// STORE SUBSCRIPTIONS
-	function onSectionSubscribe(section) {
-		currentSection = section;
-	}
-	function onScrollSubscribe(scroll) {
-		isScrolling = scroll;
-	}
 
+	// GENERAL PURPOSE FUNCTIONS
 	function matchTheme() {
 		if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
 			document.body.classList.add('dark');
@@ -61,53 +42,33 @@
 			updateDarkModeStore(false);
 		}
 	}
+	function getSectionInfo() {
+		const sections = document.querySelectorAll('section');
+		let sectionInfo = [];
+		sections.forEach((section) => {
+			const height = section.getBoundingClientRect().height;
+			const top = section.offsetTop;
+			sectionInfo.push({
+				section: section,
+				top: top,
+				height: height
+			});
+		});
+
+		return sectionInfo;
+	}
 
 	// CONSTRUCTION, INIT, DESTROY
 	function construct() {
-		// SUBSCRIBE TO THE STORES
-		sectionUnsubscribe = sectionStore.subscribe((section) => {
-			onSectionSubscribe(section);
-		});
-		scrollUnsubscribe = scrollStore.subscribe((scroll) => {
-			onScrollSubscribe(scroll);
-		});
-
 		// REGISTER GSAP PLUGINS
 		gsap.registerPlugin(ScrollToPlugin);
-
-		// Point my function pointer to the scrollTo function
-		scrollToSection = (index, factor) => {
-			scrollTo(index, factor);
-		};
-
-		// Get the sections
-		sections = document.querySelectorAll('section');
-
-		// Add event listeners
 	}
-
 	function init() {
-		// make the section the first section, and scroll to it (instantly) before unlocking the scroll
-		updateSection(0);
-		scrollToSection(0, 0);
-		updateScroll(false);
-		matchTheme();
+		matchTheme(); // match light or dark theme
+		updateSectionInfoStore(getSectionInfo()); // update section info
 	}
 
-	function destroy() {
-		// CLEANUP EVENT LISTENERS
-
-		// KILL TWEENS
-		gsap.killTweensOf(window);
-
-		// CLEANUP STORES
-		if (sectionUnsubscribe) {
-			sectionUnsubscribe();
-		}
-		if (scrollUnsubscribe) {
-			scrollUnsubscribe();
-		}
-	}
+	function destroy() {}
 
 	// ON MOUNT (CLIENT SIDE)
 	onMount(() => {
@@ -120,7 +81,7 @@
 </script>
 
 <main class="relative flex min-h-screen flex-col bg-black dark:bg-white">
-	<Three {duration} className="z-0 fixed top-0 left-0 right-0 w-full " />
+	<Three className="z-0 fixed top-0 left-0 right-0 w-full " />
 	<!-- <Header {scrollToSection} {timeoutDuration} className="z-20 fixed top-0 left-0 right-0" /> -->
 	<Hero className={defaultClass} />
 	<AboutMe className={defaultClass} />
