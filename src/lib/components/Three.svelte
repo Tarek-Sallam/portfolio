@@ -314,6 +314,8 @@
 			onDarkModeSubscribe(darkMode);
 		});
 
+		resizeCanvas(); // make sure canvas is appropriate size
+
 		const scale = window.outerHeight + window.outerWidth;
 		xLength *= scale;
 		zLength *= scale;
@@ -375,7 +377,6 @@
 	}
 
 	function init() {
-		resizeCanvas();
 		// SET MY CAMERA POSITION TO POSITION 1, AND LOOK AT 0,0,0
 		camera.position.x = cameraPositions[0][0];
 		camera.position.y = cameraPositions[0][1];
@@ -489,5 +490,5 @@
 </script>
 
 <div class={className}>
-	<canvas class="verflow-hidden h-lvh" bind:this={canvas}></canvas>
+	<canvas class="verflow-hidden h-svh" bind:this={canvas}></canvas>
 </div>
