@@ -43,11 +43,26 @@
 			updateDarkModeStore(false);
 		}
 	}
+	function getElementTotalHeight(element) {
+		if (!element) return 0;
+
+		// Get the bounding box of the element (includes padding and border)
+		const rect = element.getBoundingClientRect();
+		const computedStyle = window.getComputedStyle(element);
+
+		// Get the vertical margins
+		const marginTop = parseFloat(computedStyle.marginTop) || 0;
+		const marginBottom = parseFloat(computedStyle.marginBottom) || 0;
+
+		// Calculate total height
+		const totalHeight = rect.height + marginTop + marginBottom;
+		return totalHeight;
+	}
 	function getSectionInfo() {
 		const sections = document.querySelectorAll('section');
 		let sectionInfo = [];
 		sections.forEach((section) => {
-			const height = section.getBoundingClientRect().height;
+			const height = getElementTotalHeight(section);
 			sectionInfo.push({
 				id: `#${section.id}`,
 				height: height

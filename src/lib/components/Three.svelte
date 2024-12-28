@@ -208,20 +208,19 @@
 		if (timeline) {
 			timeline.kill();
 		}
-		const totalHeight = sectionInfo.reduce((sum, section) => sum + section.height, 0);
-
 		timeline = gsap.timeline({
 			scrollTrigger: {
 				trigger: 'body',
 				start: 'top top',
-				end: 'bottom bottom',
+				end: 'bottom top',
 				scrub: true
 			}
 		});
 		sectionInfo.forEach((section, index) => {
 			if (index === 0) {
-				timeline
-					.to(camera.position, {
+				timeline.to(
+					camera.position,
+					{
 						x: cameraPositions[0][0],
 						y: cameraPositions[0][1],
 						z: cameraPositions[0][2],
@@ -230,25 +229,41 @@
 						},
 						ease: 'power1.inOut',
 						duration: 0
-					})
-					.add(section.id);
+					},
+					'0'
+				);
 			}
 			if (index > 0) {
-				const relativeDuration = sectionInfo[index - 1].height / totalHeight;
-				timeline
-					.to(camera.position, {
+				timeline.to(
+					camera.position,
+					{
 						x: cameraPositions[index][0],
 						y: cameraPositions[index][1],
 						z: cameraPositions[index][2],
 						onUpdate: () => {
 							camera.lookAt(0, 0, 0);
 						},
-						ease: 'power1.inOut',
-						duration: relativeDuration
-					})
-					.add(section.id);
+						ease: 'none',
+						duration: sectionInfo[index - 1].height
+					},
+					'>'
+				);
 			}
 		});
+		timeline.to(
+			camera.position,
+			{
+				x: cameraPositions[sectionInfo.length - 1][0],
+				y: cameraPositions[sectionInfo.length - 1][1],
+				z: cameraPositions[sectionInfo.length - 1][2],
+				onUpdate: () => {
+					camera.lookAt(0, 0, 0);
+				},
+				ease: 'none',
+				duration: sectionInfo[sectionInfo.length - 1].height
+			},
+			'>'
+		);
 	}
 	function scrollTo(position) {
 		gsap.to(camera.position, {
