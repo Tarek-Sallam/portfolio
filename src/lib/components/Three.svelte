@@ -28,8 +28,8 @@
 	let intersectRadius = 0.15; // the radius of which the mouse causes the particles to move up
 	let maxHeight = 0.05; // the maximum height for a particle to travel up-down when mouse hovering
 	let particleSize = 0.003;
-	const near = 3;
-	const far = 3;
+	const near = 4;
+	const far = 4;
 
 	// the positions of the cameras and the index/position
 	let cameraPositions = [
