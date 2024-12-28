@@ -336,10 +336,10 @@
 		scene = new THREE.Scene();
 		renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 		camera = new THREE.OrthographicCamera(
-			canvas.clientWidth / -2,
-			canvas.clientWidth / 2,
-			canvas.clientHeight / 2,
-			canvas.clientHeight / -2,
+			canvas.width / -2,
+			canvas.width / 2,
+			canvas.height / 2,
+			canvas.height / -2,
 			-scale * near,
 			scale * far
 		);
@@ -384,7 +384,7 @@
 		camera.lookAt(0, 0, 0);
 
 		// SETUP THE RENDERER
-		renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+		renderer.setSize(canvas.width, canvas.height);
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setAnimationLoop(animate);
 		renderer.setClearColor(new THREE.Color(0x000000), 1);
@@ -465,10 +465,10 @@
 		// recalculate the canvas, and update the camera, renderer
 		resizeCanvas();
 		camera.aspect = canvas.width / canvas.height;
-		camera.left = canvas.clientWidth / -2;
-		camera.right = canvas.clientWidth / 2;
-		camera.top = canvas.clientHeight / 2;
-		camera.bottom = canvas.clientHeight / -2;
+		camera.left = canvas.width / -2;
+		camera.right = canvas.width / 2;
+		camera.top = canvas.height / 2;
+		camera.bottom = canvas.height / -2;
 		camera.updateProjectionMatrix();
 		renderer.setSize(canvas.width, canvas.height);
 		renderer.setPixelRatio(window.devicePixelRatio);
