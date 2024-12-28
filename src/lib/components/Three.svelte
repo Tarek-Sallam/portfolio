@@ -17,23 +17,26 @@
 
 	// GLOBAL CONSTANTS
 	const numParticles = 150; // number of particles in three scene
-	const xLength = 4000; // spanning of the particles in the x-direction (forward-back)
-	const yLength = 0; // spanning of the particles in the y-direction (up-down)
-	const zLength = 4000; // spanning of the particles in the z-direction (left-right)
-	const maxDistance = 700; // the maximum distance for a line to be drawn between two particles
-	const awaySpeed = 0.5; // the speed that the particles move away the mouse
-	const speed = 8; // the speed of the particles moving generally
-	const boundX = 200; // the bound size for the particle movement in the x-direction (forward-back)
-	const boundZ = 200; // the bound size for the particle movement in the z-direction (left-right)
-	const intersectRadius = 300; // the radius of which the mouse causes the particles to move up
-	const maxHeight = 150; // the maximum height for a particle to travel up-down when mouse hovering
+	let xLength = 2; // spanning of the particles in the x-direction (forward-back)
+	let yLength = 0; // spanning of the particles in the y-direction (up-down)
+	let zLength = 2; // spanning of the particles in the z-direction (left-right)
+	let maxDistance = 0.3; // the maximum distance for a line to be drawn between two particles
+	let awaySpeed = 0.0003; // the speed that the particles move away the mouse
+	let speed = 0.003; // the speed of the particles moving generally
+	let boundX = 0.1; // the bound size for the particle movement in the x-direction (forward-back)
+	let boundZ = 0.1; // the bound size for the particle movement in the z-direction (left-right)
+	let intersectRadius = 0.15; // the radius of which the mouse causes the particles to move up
+	let maxHeight = 0.05; // the maximum height for a particle to travel up-down when mouse hovering
+	let particleSize = 0.003;
+	const near = 3;
+	const far = 3;
 
 	// the positions of the cameras and the index/position
-	const cameraPositions = [
-		[2000, 800, 0],
-		[2000, 500, 0],
-		[2000 * Math.cos(Math.PI / 8), 500, 2000 * Math.sin(Math.PI / 8)],
-		[2000 * Math.cos(Math.PI / 4), 700, 2000 * Math.sin(Math.PI / 4)]
+	let cameraPositions = [
+		[2, 0.8, 0],
+		[2, 0.5, 0],
+		[2 * Math.cos(Math.PI / 8), 0.5, 2 * Math.sin(Math.PI / 8)],
+		[2 * Math.cos(Math.PI / 4), 0.7, 2 * Math.sin(Math.PI / 4)]
 	];
 
 	// GLOBAL VARIABLES
@@ -310,6 +313,19 @@
 		darkModeUnsubscribe = darkModeStore.subscribe((darkMode) => {
 			onDarkModeSubscribe(darkMode);
 		});
+
+		xLength *= window.innerHeight + window.innerWidth;
+		zLength *= window.innerHeight + window.innerWidth;
+		maxDistance *= window.innerHeight + window.innerWidth;
+		awaySpeed *= window.innerHeight + window.innerWidth;
+		speed *= window.innerHeight + window.innerWidth;
+		boundX *= window.innerHeight + window.innerWidth;
+		boundZ *= window.innerHeight + window.innerWidth;
+		intersectRadius *= window.innerHeight + window.innerWidth;
+		maxHeight *= window.innerHeight + window.innerWidth;
+		maxHeight *= window.innerHeight / window.innerWidth;
+		particleSize *= window.innerHeight + window.innerWidth;
+
 		// CREATE MY THREE RAYCASTER AND POINTER
 		raycaster = new THREE.Raycaster();
 		pointer = new THREE.Vector2();
@@ -322,8 +338,8 @@
 			canvas.clientWidth / 2,
 			canvas.clientHeight / 2,
 			canvas.clientHeight / -2,
-			-6000,
-			6000
+			-(window.innerHeight + window.innerWidth) * near,
+			(window.innerHeight + window.innerWidth) * far
 		);
 
 		// CREATE MY PARTICLE POSITIONS, PARTICLE BUFFER, PARTICLE MATERIAL, AND PARTICLE MESH
@@ -332,7 +348,7 @@
 		particlesMaterial = new THREE.ShaderMaterial({
 			uniforms: {
 				uColor: { value: new THREE.Color(0xffffff) },
-				uSize: { value: 8.0 }
+				uSize: { value: particleSize }
 			},
 			vertexShader: vertexShader,
 			fragmentShader: fragmentShader,
@@ -352,6 +368,9 @@
 		});
 		lines = new THREE.LineSegments(linesBuffer, linesMaterial);
 
+		cameraPositions = cameraPositions.map((value) =>
+			value.map((coord) => coord * (window.innerHeight + window.innerWidth))
+		);
 		// SET THE EVENT LISTENERS
 		window.addEventListener('resize', handleResize);
 		window.addEventListener('pointermove', handlePointer);
@@ -375,7 +394,6 @@
 			const x = Math.random() * xLength - xLength / 2;
 			const y = Math.random() * yLength - yLength / 2;
 			const z = Math.random() * zLength - zLength / 2;
-
 			particlePositions[i * 3] = x;
 			particlePositions[i * 3 + 1] = y;
 			particlePositions[i * 3 + 2] = z;
@@ -425,6 +443,7 @@
 		if (timeline) {
 			timeline.kill();
 		}
+		gsap.killTweensOf(camera);
 
 		// REMOVE EVENT LISTENERS
 		window.removeEventListener('resize', handleResize);
@@ -447,8 +466,13 @@
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.left = canvas.clientWidth / -2;
+		camera.right = canvas.clientWidth / 2;
+		camera.top = canvas.clientHeight / 2;
+		camera.bottom = canvas.clientHeight / -2;
 		camera.updateProjectionMatrix();
 		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setPixelRatio(window.devicePixelRatio);
 	}
 
 	// ON CSR
