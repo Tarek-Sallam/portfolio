@@ -490,5 +490,5 @@
 </script>
 
 <div class={className}>
-	<canvas class="verflow-hidden h-svh" bind:this={canvas}></canvas>
+	<canvas class="h-screen w-screen overflow-hidden" bind:this={canvas}></canvas>
 </div>
