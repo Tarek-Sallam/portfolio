@@ -490,5 +490,5 @@
 </script>
 
 <div class={className}>
-	<canvas class="h-svh overflow-hidden" bind:this={canvas}></canvas>
+	<canvas class="h-screen overflow-hidden" bind:this={canvas}></canvas>
 </div>
