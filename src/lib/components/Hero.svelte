@@ -12,33 +12,33 @@
 
 <section id="hero" class={className}>
 	<div class="flex min-h-screen flex-col items-center justify-center text-black dark:text-white">
-		<h1 class="mb-6 text-center font-zen text-8xl">TAREK SALLAM</h1>
-		<div class="mb-4 flex items-center justify-between space-x-12">
+		<h1 class="mb-4 text-center font-zen text-7xl">TAREK SALLAM</h1>
+		<div class="flex items-center justify-between space-x-6">
 			<a
 				href="https://github.com/Tarek-Sallam"
 				target="_blank"
 				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
 			>
-				<img src={githubIcon} alt="GitHub" class="h-12 w-12" />
+				<img src={githubIcon} alt="GitHub" class="h-10 w-10" />
 			</a>
 			<a
 				href="mailto:tarek.i.sallam@gmail.com"
 				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
 			>
-				<img src={mailIcon} alt="Email" class="h-12 w-12" />
+				<img src={mailIcon} alt="Email" class="h-10 w-10" />
 			</a>
 			<a
 				href="https://www.linkedin.com/in/tareksallam"
 				target="_blank"
 				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
 			>
-				<img src={linkedinIcon} alt="LinkedIn" class="h-12 w-12" />
+				<img src={linkedinIcon} alt="LinkedIn" class="h-10 w-10" />
 			</a>
 			<a
 				href="./resume.pdf"
 				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
 			>
-				<img src={resumeIcon} alt="CV" class="h-12 w-12" />
+				<img src={resumeIcon} alt="CV" class="h-10 w-10" />
 			</a>
 		</div>
 	</div>

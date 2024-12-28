@@ -5,11 +5,11 @@
 </script>
 
 <section id="projects" class={className}>
-	<div class="container mx-auto px-6 py-12">
-		<h2 class="mb-6 mt-6 text-center font-mono text-4xl font-bold text-black dark:text-white">
+	<div class="mx-6 mb-12 px-6 pt-24">
+		<h2 class="mb-6 font-mono text-3xl font-bold text-black antialiased dark:text-white">
 			Top Projects
 		</h2>
-		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+		<div class="grid grid-cols-1 gap-6">
 			<ProjectCard
 				title="This Portfolio Website!"
 				description="Portfolio full-stack web app to showcase my experience and projects."

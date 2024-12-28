@@ -17,7 +17,7 @@
 	import { darkModeStore, sectionInfoStore, loading } from '$lib/store.js';
 
 	// DEFAULT CLASSES FOR THE COMPONENTS
-	const defaultClass = 'z-10 container mx-auto min-h-screen flex justify-center items-center ';
+	const defaultClass = 'z-10';
 
 	// CONSTANTS
 	const animDuration = 1.5;
@@ -107,28 +107,26 @@
 			.then(() => init())
 			.then(() => {
 				loading.set($loading - 1);
-			}); // construct
-		// initialize
-
-		// check fonts loadin
-
+			});
 		onDestroy(() => {
 			destroy(); // destroy
 		});
 	});
 </script>
 
-<main class="relative flex min-h-screen flex-col overflow-x-hidden bg-white dark:bg-black">
+<Header {animDuration} className="z-20 fixed top-0 left-0 right-0 " />
+<main
+	class="relative flex min-h-screen flex-col overflow-x-hidden overscroll-none bg-white dark:bg-black"
+>
 	{#if $loading > 0}
 		<div
 			class="w-100 h-100 fixed left-0 top-0 z-30 flex h-screen w-screen items-center justify-center bg-black"
-			transition:fade={{ duration: 2000 }}
+			transition:fade={{ duration: 1500 }}
 		>
 			<p class="text-center font-mono text-2xl font-bold text-white">Loading...</p>
 		</div>
 	{/if}
 	<Three {animDuration} className="z-0 fixed top-0 left-0 right-0 w-full " />
-	<Header {animDuration} className="z-20 fixed top-0 left-0 right-0 " />
 	<Hero className={defaultClass} />
 	<AboutMe className={defaultClass} />
 	<Experience className={defaultClass} />

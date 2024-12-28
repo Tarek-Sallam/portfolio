@@ -72,9 +72,9 @@
 </script>
 
 <div class={className}>
-	<header class="px-0 py-4 font-mono text-xl text-black dark:text-white lg:px-4">
-		<div class="mx-auto flex w-full justify-between px-10 py-3">
-			<div class="h-auto w-12">
+	<header class="py-6 font-mono text-xl text-black dark:text-white">
+		<div class="mx-6 flex justify-between">
+			<div class="w-10">
 				<a href="#hero" on:click={(e) => handleClick('#hero', e)}>
 					<img src={logoSrc} alt="Logo" />
 				</a>

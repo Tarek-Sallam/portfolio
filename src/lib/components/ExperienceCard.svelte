@@ -5,9 +5,9 @@
 </script>
 
 <div
-	class="w-4/5 flex-col justify-between rounded-lg bg-gray-100 bg-opacity-75 p-6 shadow-md lg:w-1/2 dark:bg-black dark:bg-opacity-75"
+	class="flex-col justify-between space-y-2 rounded-lg bg-gray-100 bg-opacity-75 px-4 py-4 font-mono tracking-tighter antialiased shadow-md dark:bg-black dark:bg-opacity-75"
 >
-	<h3 class="text-start text-2xl font-semibold text-black dark:text-white">{title}</h3>
-	<p class="text-xl text-gray-700 dark:text-gray-300">{location}</p>
-	<p class="text-sm text-gray-500">{dates}</p>
+	<h3 class="text-xl font-semibold text-black dark:text-white">{title}</h3>
+	<p class="text-base text-gray-700 dark:text-gray-300">{location}</p>
+	<p class="text-sm italic text-gray-500">{dates}</p>
 </div>

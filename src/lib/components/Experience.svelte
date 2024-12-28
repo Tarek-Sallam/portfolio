@@ -4,12 +4,12 @@
 	export let className = '';
 </script>
 
-<section id="experience" class="snap-y overflow-y-scroll {className}">
-	<div class="container mx-auto mt-6 px-6 py-12">
-		<h2 class="mb-8 text-center font-mono text-4xl font-bold text-black dark:text-white">
+<section id="experience" class={className}>
+	<div class="mx-6 min-h-screen px-6 pt-24">
+		<h2 class="mb-6 font-mono text-3xl font-bold text-black antialiased dark:text-white">
 			Experience
 		</h2>
-		<div class="flex flex-col items-center space-y-8">
+		<div class="flex flex-col space-y-4">
 			<ExperienceCard
 				title="Teaching Assistant - Discrete Structures I & II"
 				location="Carleton University - Ottawa, Canada"
