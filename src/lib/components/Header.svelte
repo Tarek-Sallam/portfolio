@@ -4,6 +4,7 @@
 
 	/* IMPORT ALL LIBRARIES */
 	import { onMount, onDestroy } from 'svelte';
+	import { fly } from 'svelte/transition';
 	import { gsap } from 'gsap';
 	import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -57,10 +58,8 @@
 		e.preventDefault();
 		scrollTo(id);
 	}
-	function toggleMobileMenu(event) {
-		if (event.key === 'Enter' || event.key === ' ') {
-			isMobileMenuOpen = !isMobileMenuOpen;
-		}
+	function toggleMobileMenu() {
+		isMobileMenuOpen = !isMobileMenuOpen;
 	}
 	onMount(() => {
 		construct();
@@ -73,34 +72,84 @@
 
 <div class={className}>
 	<header class="py-6 font-mono text-xl text-black dark:text-white">
-		<div class="mx-6 flex justify-between">
-			<div class="w-10">
-				<a href="#hero" on:click={(e) => handleClick('#hero', e)}>
+		<div class="mx-4 flex items-start justify-between">
+			<div class="mx-2 flex h-12 w-12 justify-center">
+				<a
+					href="#hero"
+					class="center-items flex w-10 justify-center"
+					on:click={(e) => handleClick('#hero', e)}
+				>
 					<img src={logoSrc} alt="Logo" />
 				</a>
 			</div>
-			<nav class="flex items-center justify-between space-x-10">
-				<!-- Hamburger Button for small devices -->
-				<button
-					class="flex h-6 w-6 flex-col items-center justify-between space-y-1 lg:hidden"
-					on:click={() => (isMobileMenuOpen = !isMobileMenuOpen)}
-					on:keydown={toggleMobileMenu}
-					aria-label="Toggle navigation menu"
-				>
-					<span class="block h-0.5 w-full bg-white"></span>
-					<span class="block h-0.5 w-full bg-white"></span>
-					<span class="block h-0.5 w-full bg-white"></span>
-				</button>
 
-				<!-- Menu items -->
-				<ol class={`space-x-10 lg:flex ${isMobileMenuOpen ? 'block' : 'hidden'} lg:block`}>
-					<li><a href="#about-me" on:click={(e) => handleClick('#about-me', e)}>About</a></li>
-					<li>
-						<a href="#experience" on:click={(e) => handleClick('#experience', e)}>Experience</a>
-					</li>
-					<li><a href="#projects" on:click={(e) => handleClick('#projects', e)}>Projects</a></li>
-				</ol>
-				<ToggleButton />
+			<nav class="flex flex-col items-end gap-2">
+				<div class="flex justify-center gap-4">
+					<div class="flex h-12 w-12 justify-center">
+						<ToggleButton />
+					</div>
+					<div class="flex h-12 w-12 justify-center">
+						<button class="group relative" aria-label="Toggle Menu" on:click={toggleMobileMenu}>
+							<div
+								class="relative flex h-10 w-10 items-center justify-center overflow-hidden bg-transparent"
+							>
+								<div
+									class="flex h-6 w-6 origin-center transform flex-col justify-between overflow-hidden"
+								>
+									<div
+										class={`h-1 w-6 origin-left transform rounded-full bg-black transition-transform duration-300 ${
+											isMobileMenuOpen ? 'translate-y-6' : ''
+										} dark:bg-white`}
+									></div>
+									<div
+										class={`h-1 w-6 transform rounded-full bg-black transition-transform delay-75 duration-300 ${
+											isMobileMenuOpen ? 'translate-y-6' : ''
+										} dark:bg-white`}
+									></div>
+									<div
+										class={`h-1 w-6 origin-left transform rounded-full bg-black transition-transform duration-300 ${
+											isMobileMenuOpen ? 'translate-y-6' : ''
+										} dark:bg-white`}
+									></div>
+
+									<div
+										class={`absolute top-3 flex w-0 translate-x-10 transform items-center justify-between transition-all duration-500 ${
+											isMobileMenuOpen ? 'w-12 translate-x-0' : ''
+										}`}
+									>
+										<div
+											class={`absolute h-1 w-6 transform rounded-full bg-black transition-all delay-300 duration-500 ${
+												isMobileMenuOpen ? 'rotate-45' : 'rotate-0'
+											} dark:bg-white`}
+										></div>
+										<div
+											class={`absolute h-1 w-6 transform rounded-full bg-black transition-all delay-300 duration-500 ${
+												isMobileMenuOpen ? '-rotate-45' : 'rotate-0'
+											} dark:bg-white`}
+										></div>
+									</div>
+								</div>
+							</div>
+						</button>
+					</div>
+				</div>
+
+				{#if isMobileMenuOpen}
+					<div
+						class="mx-2 flex flex-col items-end gap-2"
+						transition:fly={{ x: 200, duration: 1500 }}
+					>
+						<ol class="flex flex-col items-end gap-2">
+							<li><a href="#about-me" on:click={(e) => handleClick('#about-me', e)}>About</a></li>
+							<li>
+								<a href="#experience" on:click={(e) => handleClick('#experience', e)}>Experience</a>
+							</li>
+							<li>
+								<a href="#projects" on:click={(e) => handleClick('#projects', e)}>Projects</a>
+							</li>
+						</ol>
+					</div>
+				{/if}
 			</nav>
 		</div>
 	</header>
