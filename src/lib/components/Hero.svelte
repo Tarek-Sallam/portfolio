@@ -12,7 +12,7 @@
 
 <section id="hero" class={className}>
 	<div class="flex min-h-screen flex-col items-center justify-center text-black dark:text-white">
-		<h1 class="font-zen mb-6 text-center text-8xl">TAREK SALLAM</h1>
+		<h1 class="mb-6 text-center font-zen text-8xl">TAREK SALLAM</h1>
 		<div class="mb-4 flex items-center justify-between space-x-12">
 			<a
 				href="https://github.com/Tarek-Sallam"

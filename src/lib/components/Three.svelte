@@ -6,7 +6,7 @@
 	import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 	/* STORE IMPORTS */
-	import { darkModeStore, scrollStore, sectionInfoStore } from '$lib/store';
+	import { darkModeStore, scrollStore, sectionInfoStore, loading } from '$lib/store';
 
 	/* SHADER IMPORTS */
 	import fragmentShader from '$lib/components/shaders/fragment.glsl';
@@ -306,7 +306,7 @@
 	}
 
 	// CONSTRUCTION, INIT AND DESTRUCTION
-	function construct() {
+	async function construct() {
 		gsap.registerPlugin(ScrollTrigger);
 		// SET SUBSCRIPTION CALLBACKS
 
@@ -376,7 +376,7 @@
 		window.addEventListener('pointermove', handlePointer);
 	}
 
-	function init() {
+	async function init() {
 		// SET MY CAMERA POSITION TO POSITION 1, AND LOOK AT 0,0,0
 		camera.position.x = cameraPositions[0][0];
 		camera.position.y = cameraPositions[0][1];
@@ -478,11 +478,17 @@
 		canvas.width = window.outerWidth;
 		canvas.height = window.outerHeight;
 	}
+
 	// ON CSR
 	onMount(() => {
-		construct();
-		init();
-
+		construct()
+			.then(() => init())
+			.then(() => {
+				loading.set($loading - 1);
+			})
+			.catch((e) => {
+				console.log('Error loading three scene');
+			});
 		onDestroy(() => {
 			destroy();
 		});
