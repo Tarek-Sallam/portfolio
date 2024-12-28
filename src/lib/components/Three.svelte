@@ -314,17 +314,17 @@
 			onDarkModeSubscribe(darkMode);
 		});
 
-		xLength *= window.innerHeight + window.innerWidth;
-		zLength *= window.innerHeight + window.innerWidth;
-		maxDistance *= window.innerHeight + window.innerWidth;
-		awaySpeed *= window.innerHeight + window.innerWidth;
-		speed *= window.innerHeight + window.innerWidth;
-		boundX *= window.innerHeight + window.innerWidth;
-		boundZ *= window.innerHeight + window.innerWidth;
-		intersectRadius *= window.innerHeight + window.innerWidth;
-		maxHeight *= window.innerHeight + window.innerWidth;
-		maxHeight *= window.innerHeight / window.innerWidth;
-		particleSize *= window.innerHeight + window.innerWidth;
+		xLength *= window.visualViewport.height + window.visualViewport.width;
+		zLength *= window.visualViewport.height + window.visualViewport.width;
+		maxDistance *= window.visualViewport.height + window.visualViewport.width;
+		awaySpeed *= window.visualViewport.height + window.visualViewport.width;
+		speed *= window.visualViewport.height + window.visualViewport.width;
+		boundX *= window.visualViewport.height + window.visualViewport.width;
+		boundZ *= window.visualViewport.height + window.visualViewport.width;
+		intersectRadius *= window.visualViewport.height + window.visualViewport.width;
+		maxHeight *= window.visualViewport.height + window.visualViewport.width;
+		maxHeight *= window.visualViewport.height / window.visualViewport.width;
+		particleSize *= window.visualViewport.height + window.visualViewport.width;
 
 		// CREATE MY THREE RAYCASTER AND POINTER
 		raycaster = new THREE.Raycaster();
@@ -338,8 +338,8 @@
 			canvas.clientWidth / 2,
 			canvas.clientHeight / 2,
 			canvas.clientHeight / -2,
-			-(window.innerHeight + window.innerWidth) * near,
-			(window.innerHeight + window.innerWidth) * far
+			-(window.visualViewport.height + window.visualViewport.width) * near,
+			(window.visualViewport.height + window.visualViewport.width) * far
 		);
 
 		// CREATE MY PARTICLE POSITIONS, PARTICLE BUFFER, PARTICLE MATERIAL, AND PARTICLE MESH
@@ -369,7 +369,7 @@
 		lines = new THREE.LineSegments(linesBuffer, linesMaterial);
 
 		cameraPositions = cameraPositions.map((value) =>
-			value.map((coord) => coord * (window.innerHeight + window.innerWidth))
+			value.map((coord) => coord * (window.visualViewport.height + window.visualViewport.width))
 		);
 		// SET THE EVENT LISTENERS
 		window.addEventListener('resize', handleResize);
@@ -463,15 +463,15 @@
 	}
 	function handleResize() {
 		// recalculate the canvas, and update the camera, renderer
-		canvas.width = window.innerWidth;
-		canvas.height = window.innerHeight;
-		camera.aspect = window.innerWidth / window.innerHeight;
+		canvas.width = window.visualViewport.width;
+		canvas.height = window.visualViewport.height;
+		camera.aspect = camera.width / camera.height;
 		camera.left = canvas.clientWidth / -2;
 		camera.right = canvas.clientWidth / 2;
 		camera.top = canvas.clientHeight / 2;
 		camera.bottom = canvas.clientHeight / -2;
 		camera.updateProjectionMatrix();
-		renderer.setSize(window.innerWidth, window.innerHeight);
+		renderer.setSize(window.visualViewport.width, window.visualViewport.height);
 		renderer.setPixelRatio(window.devicePixelRatio);
 	}
 
