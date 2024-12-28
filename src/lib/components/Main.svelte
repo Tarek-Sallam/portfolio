@@ -78,7 +78,7 @@
 	});
 </script>
 
-<main class="relative flex min-h-screen flex-col bg-black dark:bg-white">
+<main class="relative flex min-h-screen flex-col bg-white dark:bg-black">
 	<Three {animDuration} className="z-0 fixed top-0 left-0 right-0 w-full " />
 	<Header {animDuration} className="z-20 fixed top-0 left-0 right-0" />
 	<Hero className={defaultClass} />
