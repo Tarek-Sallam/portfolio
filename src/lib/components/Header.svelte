@@ -113,8 +113,8 @@
 									></div>
 
 									<div
-										class={`absolute top-3 flex w-0 translate-x-10 transform items-center justify-between transition-all duration-500 ${
-											isMobileMenuOpen ? 'w-12 translate-x-0' : ''
+										class={`absolute top-3 flex transform items-center justify-between transition-all duration-500 ${
+											isMobileMenuOpen ? 'w-12 translate-x-0' : 'w-0 translate-x-10'
 										}`}
 									>
 										<div
