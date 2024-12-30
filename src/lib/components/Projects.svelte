@@ -34,6 +34,13 @@
 					toolsUsed="Tensorflow, Keras, Python, OpenAI Gym, Pandas, NumPy, MatplotLib"
 					githubLink="https://github.com/Tarek-Sallam/DeepRL-Fantasy-Drafter"
 				/>
+				<ProjectCard
+					title="Houdini Building Generator"
+					description="A procedural building generator to generate an alleyway along an irregular path."
+					toolsUsed="Houdini FX, Unreal Engine 4, Python, C, VEX"
+					githubLink="https://github.com/Tarek-Sallam/Houdini-Building-Generator"
+					demoLink="https://youtu.be/Izi-abcbjMA"
+				/>
 			</div>
 		</div>
 	</div>
