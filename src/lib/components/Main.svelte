@@ -58,6 +58,7 @@
 		const totalHeight = rect.height + marginTop + marginBottom;
 		return totalHeight;
 	}
+
 	function getSectionInfo() {
 		const sections = document.querySelectorAll('section');
 		let sectionInfo = [];
@@ -108,13 +109,16 @@
 		gsap.registerPlugin(ScrollToPlugin);
 		await preloadImages();
 		await document.fonts.ready;
+		window.addEventListener('resize', handleResize);
 	}
 	async function init() {
 		matchTheme(); // match light or dark theme
 		updateSectionInfoStore(getSectionInfo()); // update section info
 	}
 
-	function destroy() {}
+	function destroy() {
+		window.removeEventListener('resize', handleResize);
+	}
 
 	// ON MOUNT (CLIENT SIDE)
 	onMount(() => {
@@ -127,6 +131,10 @@
 			destroy(); // destroy
 		});
 	});
+
+	function handleResize() {
+		updateSectionInfoStore(getSectionInfo());
+	}
 </script>
 
 <Header {animDuration} className="z-20 fixed top-0 left-0 right-0 " />
