@@ -7,7 +7,7 @@
 <section id="projects" class={className}>
 	<div class="flex justify-center">
 		<div
-			class="mx-6 mb-12 flex min-h-screen flex-col justify-center space-y-4 px-6 pt-24 sm:mx-8 sm:mb-16 sm:space-y-6 sm:px-8 sm:pt-32 lg:mx-10 lg:mb-0 lg:space-y-8 lg:px-10 lg:pt-0 xl:mx-12 xl:mb-20 xl:w-3/4 xl:items-center xl:px-10 xl:pt-36"
+			class="mx-6 mb-12 flex min-h-screen flex-col justify-center space-y-4 px-6 pt-24 sm:mx-8 sm:mb-16 sm:space-y-6 sm:px-8 sm:pt-32 lg:mx-10 lg:mb-16 lg:space-y-8 lg:px-10 lg:pt-0 xl:mx-12 xl:mb-20 xl:w-3/4 xl:items-center xl:px-10 xl:pt-36"
 		>
 			<h2 class="font-mono text-3xl font-bold text-black antialiased dark:text-white sm:text-5xl">
 				Projects
