@@ -16,6 +16,13 @@
 				class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:gap-10 2xl:grid-cols-3 2xl:gap-12"
 			>
 				<ProjectCard
+					title="Dynamic Orrery"
+					description="NASA Space Apps 2024 Ottawa Winner. Dynamic solar system orrery with near accurate orbits."
+					toolsUsed="Python, JavaScript, three.js, NumPy"
+					githubLink="https://github.com/Tarek-Sallam/Repositorerry"
+					demoLink="https://tarek-sallam.github.io/Repositorerry/"
+				/>
+				<ProjectCard
 					title="This Portfolio Website!"
 					description="Full-stack web app to showcase my experience and projects."
 					toolsUsed="JavaScript, GLSL, three.js, Svelte, tailwindcss"
@@ -26,13 +33,6 @@
 					description="A deep RL model trained to pick the best team in a fantasy football draft."
 					toolsUsed="Tensorflow, Keras, Python, OpenAI Gym, Pandas, NumPy, MatplotLib"
 					githubLink="https://github.com/Tarek-Sallam/DeepRL-Fantasy-Drafter"
-				/>
-				<ProjectCard
-					title="Dynamic Orrery"
-					description="NASA Space Apps 2024 Ottawa Winner. Dynamic solar system orrery with near accurate orbits."
-					toolsUsed="Python, JavaScript, three.js, NumPy"
-					githubLink="https://github.com/Tarek-Sallam/Repositorerry"
-					demoLink="https://tarek-sallam.github.io/Repositorerry/"
 				/>
 			</div>
 		</div>

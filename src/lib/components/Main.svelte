@@ -20,7 +20,7 @@
 	const defaultClass = 'z-10';
 
 	// CONSTANTS
-	const animDuration = 1.5;
+	const animDuration = 0.75;
 
 	// GLOBAL VARIABLES
 

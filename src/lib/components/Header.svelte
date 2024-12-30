@@ -71,7 +71,7 @@
 </script>
 
 <header class={className}>
-	<div class="py-6 font-mono text-xl text-black dark:text-white sm:py-8 lg:py-12 lg:text-3xl">
+	<div class="py-6 font-mono text-xl text-black dark:text-white sm:py-8 lg:py-12 lg:text-2xl">
 		<div class="mx-4 flex items-start justify-between sm:mx-6 lg:mx-10 lg:mx-14">
 			<div
 				class="xl:h-18 xl:w-18 mx-2 flex h-12 w-12 justify-center sm:h-14 sm:w-14 lg:h-16 lg:w-16"
