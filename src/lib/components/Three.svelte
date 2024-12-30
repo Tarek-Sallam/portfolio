@@ -11,23 +11,25 @@
 	/* SHADER IMPORTS */
 	import fragmentShader from '$lib/components/shaders/fragment.glsl';
 	import vertexShader from '$lib/components/shaders/vertex.glsl';
+	import { scale } from 'svelte/transition';
 	/* PROPS */
 	export let className = '';
 	export let animDuration;
 
 	// GLOBAL CONSTANTS
-	const numParticles = 150; // number of particles in three scene
+	const numParticles = 1000; // number of particles in three scene
 	let xLength = 2; // spanning of the particles in the x-direction (forward-back)
 	let yLength = 0; // spanning of the particles in the y-direction (up-down)
 	let zLength = 2; // spanning of the particles in the z-direction (left-right)
-	let maxDistance = 0.3; // the maximum distance for a line to be drawn between two particles
-	let awaySpeed = 0.0003; // the speed that the particles move away the mouse
-	let speed = 0.003; // the speed of the particles moving generally
-	let boundX = 0.1; // the bound size for the particle movement in the x-direction (forward-back)
-	let boundZ = 0.1; // the bound size for the particle movement in the z-direction (left-right)
+	let maxDistance = 0.125; // the maximum distance for a line to be drawn between two particles
+	let awaySpeed = 0.0005; // the speed that the particles move away the mouse
+	let speed = 0.0075; // the speed of the particles moving generally
+	let boundX = 2; // the bound size for the particle movement in the x-direction (forward-back)
+	let boundZ = 2; // the bound size for the particle movement in the z-direction (left-right)
 	let intersectRadius = 0.15; // the radius of which the mouse causes the particles to move up
 	let maxHeight = 0.05; // the maximum height for a particle to travel up-down when mouse hovering
 	let particleSize = 0.003;
+
 	const near = 4;
 	const far = 4;
 
@@ -50,6 +52,7 @@
 	let particlesBuffer, particlesMaterial, linesBuffer, linesMaterial;
 	let lines, particles;
 	let currentColor = 0xffffff;
+	let varyingMaxDistance;
 
 	let particleData = []; // the corresponding data for the particles
 	let boundData = []; // the data for the particle bounds
@@ -63,12 +66,14 @@
 			renderer.setClearColor(new THREE.Color(currentColor), 1);
 			if (darkMode) {
 				currentColor = 0xffffff;
-				particlesMaterial.blending = THREE.NormalBlending;
-				linesMaterial.blending = THREE.NormalBlending;
+				particlesMaterial.blending = THREE.NoBlending;
+				linesMaterial.blending = THREE.NoBlending;
+				varyingMaxDistance = maxDistance;
 			} else {
 				currentColor = 0x000000;
-				linesMaterial.blending = THREE.NormalBlending;
-				particlesMaterial.blending = THREE.NormalBlending;
+				linesMaterial.blending = THREE.NoBlending;
+				particlesMaterial.blending = THREE.NoBlending;
+				varyingMaxDistance = 1.2 * maxDistance;
 			}
 			particlesMaterial.uniforms.uColor.value = new THREE.Color(currentColor);
 		}
@@ -175,12 +180,12 @@
 		const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
 		// if the distance is small enough
-		if (dist < maxDistance) {
+		if (dist < varyingMaxDistance) {
 			// calculate the alpha level of the line
 			const alpha =
 				currentColor === 0xffffff
-					? (1 - dist / maxDistance) * 0.6
-					: Math.max(0, dist / maxDistance - 0.1 * (1 - dist / maxDistance));
+					? (1 - dist / varyingMaxDistance) * 0.6
+					: Math.max(0, dist / varyingMaxDistance - 0.1 * (1 - dist / varyingMaxDistance));
 
 			// add the x, y, z of the first point, then add the x, y, z of the second point
 			linePositions[vertexPos++] = particlePositions[i * 3];
@@ -308,6 +313,7 @@
 
 		// update the line geometry and particle geometry
 		lines.geometry.setDrawRange(0, connected * 2);
+
 		lines.geometry.attributes.position.needsUpdate = true;
 		lines.geometry.attributes.color.needsUpdate = true;
 		particles.geometry.attributes.position.needsUpdate = true;
@@ -335,6 +341,7 @@
 		xLength *= scale;
 		zLength *= scale;
 		maxDistance *= scale;
+		varyingMaxDistance = maxDistance;
 		awaySpeed *= scale;
 		speed *= scale;
 		boundX *= scale;
@@ -370,7 +377,7 @@
 			vertexShader: vertexShader,
 			fragmentShader: fragmentShader,
 			transparent: true,
-			blending: THREE.NoBlending
+			blending: THREE.AdditiveBlending
 		});
 		particles = new THREE.Points(particlesBuffer, particlesMaterial);
 
@@ -380,7 +387,7 @@
 		linesBuffer = new THREE.BufferGeometry();
 		linesMaterial = new THREE.LineBasicMaterial({
 			vertexColors: true,
-			blending: THREE.NormalBlending,
+			blending: THREE.AdditiveBlending,
 			transparent: true
 		});
 		lines = new THREE.LineSegments(linesBuffer, linesMaterial);
@@ -426,6 +433,7 @@
 			'position',
 			new THREE.BufferAttribute(particlePositions, 3).setUsage(THREE.DynamicDrawUsage)
 		);
+		particlesBuffer.setDrawRange(0, numParticles);
 
 		// SET THE LINES BUFFER TO DRAW BASED ON LINE POSITIONS
 		linesBuffer.setAttribute(
@@ -438,6 +446,8 @@
 			'color',
 			new THREE.BufferAttribute(lineColors, 3).setUsage(THREE.DynamicDrawUsage)
 		);
+		linesBuffer.computeBoundingSphere();
+		linesBuffer.setDrawRange(0, 0);
 
 		// ADD MY PARTICLES AND LINES TO THE SCENE
 		scene.add(particles);

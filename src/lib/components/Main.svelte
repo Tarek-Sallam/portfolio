@@ -133,6 +133,7 @@
 <main
 	class="relative flex min-h-screen flex-col overflow-x-hidden overscroll-none bg-white dark:bg-black"
 >
+	<!--
 	{#if $loading > 0}
 		<div
 			class="w-100 h-100 fixed left-0 top-0 z-30 flex h-screen w-screen items-center justify-center bg-black"
@@ -140,8 +141,8 @@
 		>
 			<p class="text-center font-mono text-2xl font-bold text-white">Loading...</p>
 		</div>
-	{/if}
-	<Three {animDuration} className="z-0 fixed top-0 left-0 right-0 w-full " />
+	{/if}-->
+	<!--<Three {animDuration} className="z-0 fixed top-0 left-0 right-0 w-full " /> -->
 	<Hero className={defaultClass} />
 	<AboutMe className={defaultClass} />
 	<Experience className={defaultClass} />
