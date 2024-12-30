@@ -16,15 +16,19 @@
 				<p
 					class="font-mono text-base tracking-tighter text-gray-600 antialiased dark:text-gray-300 sm:text-xl sm:tracking-normal"
 				>
-					Hello! I'm Tarek, a Computer Science student at Carleton University! I am pursuing a minor
-					in mathematics and a concentration in AI & ML. I am fascinated by machine learning,
-					specifically deep learning and its applications and also enjoy learning about various
-					mathematical and statistical models. Feel free to explore what I'm currently working on
-					(or have previously worked on) in the projects section, or on my GitHub!
+					Hi! I'm Tarek, a Computer Science student at Carleton University, with a minor in
+					mathematics and a concentration in AI & ML. I have a deep fascination with machine
+					learning, particularly deep learning and its practical applications. I'm also passionate
+					about exploring the mathematical and statistical models that underpin these technologies.
 					<br />
 					<br />
-					Outside of learning I enjoy spending time lifting weights and rock climbing, or relaxing at
-					home while watching a movie or playing my favourite video game!
+					On quieter days, you’ll find me relaxing at home, watching a good movie, or diving into my
+					favorite video game.
+					<br />
+					<br />
+					Feel free to check out my current and past projects in the projects section or on my GitHub—I’d
+					love to share what I’ve been working on! When I’m not immersed in learning or coding, I enjoy
+					staying active through weightlifting and rock climbing.
 				</p>
 			</div>
 		</div>
