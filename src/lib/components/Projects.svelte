@@ -17,7 +17,7 @@
 			>
 				<ProjectCard
 					title="This Portfolio Website!"
-					description="Portfolio full-stack web app to showcase my experience and projects."
+					description="Full-stack web app to showcase my experience and projects."
 					toolsUsed="JavaScript, GLSL, three.js, Svelte, tailwindcss"
 					githubLink="https://github.com/Tarek-Sallam/portfolio"
 				/>
@@ -30,7 +30,7 @@
 				<ProjectCard
 					title="Dynamic Orrery"
 					description="NASA Space Apps 2024 Ottawa Winner. Dynamic solar system orrery with near accurate orbits."
-					toolsUsed="Python, JavaScript, three.js, numPy"
+					toolsUsed="Python, JavaScript, three.js, NumPy"
 					githubLink="https://github.com/Tarek-Sallam/Repositorerry"
 					demoLink="https://tarek-sallam.github.io/Repositorerry/"
 				/>

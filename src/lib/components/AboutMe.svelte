@@ -22,13 +22,13 @@
 					about exploring the mathematical and statistical models that underpin these technologies.
 					<br />
 					<br />
-					On quieter days, you’ll find me relaxing at home, watching a good movie, or diving into my
-					favorite video game.
+					When I’m not immersed in learning or coding, I enjoy staying active through weightlifting and
+					rock climbing. On quieter days, you’ll find me relaxing at home, watching a good movie, or
+					diving into my favorite video game.
 					<br />
 					<br />
-					Feel free to check out my current and past projects in the projects section or on my GitHub—I’d
-					love to share what I’ve been working on! When I’m not immersed in learning or coding, I enjoy
-					staying active through weightlifting and rock climbing.
+					Feel free to check out my current and past projects in the projects section or on my GitHub
+					— I’d love to share what I’ve been working on!
 				</p>
 			</div>
 		</div>
