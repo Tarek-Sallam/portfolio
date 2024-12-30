@@ -10,7 +10,7 @@
 			class="mx-6 mb-12 flex min-h-screen flex-col justify-center space-y-4 px-6 pt-24 sm:mx-8 sm:mb-16 sm:space-y-6 sm:px-8 sm:pt-32 lg:mx-10 lg:mb-0 lg:space-y-8 lg:px-10 lg:pt-0 xl:mx-12 xl:mb-20 xl:w-3/4 xl:items-center xl:px-10 xl:pt-36"
 		>
 			<h2 class="font-mono text-3xl font-bold text-black antialiased dark:text-white sm:text-5xl">
-				Top Projects
+				Projects
 			</h2>
 			<div
 				class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:gap-10 2xl:grid-cols-3 2xl:gap-12"
