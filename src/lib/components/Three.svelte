@@ -30,7 +30,7 @@
 	let maxHeight = 0.05; // the maximum height for a particle to travel up-down when mouse hovering
 	let particleSize = 0.003;
 
-	const near = 4;
+	const near = 6;
 	const far = 4;
 
 	// the positions of the cameras and the index/position
@@ -337,7 +337,7 @@
 
 		resizeCanvas(); // make sure canvas is appropriate size
 
-		const scale = window.outerHeight + window.outerWidth;
+		const scale = 2000;
 		xLength *= scale;
 		zLength *= scale;
 		maxDistance *= scale;
