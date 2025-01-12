@@ -16,17 +16,17 @@
 				class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2 lg:gap-8 xl:gap-10 2xl:grid-cols-3 2xl:gap-12"
 			>
 				<ProjectCard
+					title="ML Models from scratch"
+					description="A variety of ML models built purely with NumPy. Includes Jupyter notebooks with math derivations and code snippets."
+					toolsUsed="Python, NumPy, Jupyter Notebook, MatplotLib"
+					githubLink="https://github.com/Tarek-Sallam/ml-models"
+				/>
+				<ProjectCard
 					title="Dynamic Orrery"
 					description="NASA Space Apps 2024 Ottawa Winner. Dynamic solar system orrery with near accurate orbits."
 					toolsUsed="Python, JavaScript, three.js, NumPy"
 					githubLink="https://github.com/Tarek-Sallam/Repositorerry"
 					demoLink="https://tarek-sallam.github.io/Repositorerry/"
-				/>
-				<ProjectCard
-					title="This Portfolio Website!"
-					description="Full-stack web app to showcase my experience and projects."
-					toolsUsed="JavaScript, GLSL, three.js, Svelte, tailwindcss"
-					githubLink="https://github.com/Tarek-Sallam/portfolio"
 				/>
 				<ProjectCard
 					title="Fantasy Football Drafter"
@@ -35,11 +35,10 @@
 					githubLink="https://github.com/Tarek-Sallam/DeepRL-Fantasy-Drafter"
 				/>
 				<ProjectCard
-					title="Houdini Building Generator"
-					description="A procedural building generator to generate an alleyway along an irregular path."
-					toolsUsed="Houdini FX, Unreal Engine 4, Python, C, VEX"
-					githubLink="https://github.com/Tarek-Sallam/Houdini-Building-Generator"
-					demoLink="https://youtu.be/Izi-abcbjMA"
+					title="This Portfolio Website!"
+					description="Full-stack web app to showcase my experience and projects."
+					toolsUsed="JavaScript, GLSL, three.js, Svelte, tailwindcss"
+					githubLink="https://github.com/Tarek-Sallam/portfolio"
 				/>
 			</div>
 		</div>
