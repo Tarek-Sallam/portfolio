@@ -39,7 +39,7 @@
 				<img src={linkedinIcon} alt="LinkedIn" class="h-10 w-10 lg:h-14 lg:w-14" />
 			</a>
 			<a
-				href="/Tarek_Sallam_Resume_NoPhone.pdf"
+				href="/Tarek_Sallam_Resume_ML_NoPhone.pdf"
 				target="_blank"
 				class="text-black transition-transform duration-300 hover:scale-110 dark:text-white"
 			>
