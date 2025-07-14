@@ -14,9 +14,14 @@
 			</h2>
 			<div class="flex flex-col space-y-4 sm:space-y-6 lg:space-y-8 xl:space-y-10">
 				<ExperienceCard
+					title="Applied ML Engineering Intern"
+					location="Shopify - Ottawa, Canada"
+					dates="May 2025 - Current"
+				/>
+				<ExperienceCard
 					title="Teaching Assistant - Discrete Structures I & II"
 					location="Carleton University - Ottawa, Canada"
-					dates="May 2024 - Current"
+					dates="May 2024 - May 2025"
 				/>
 				<ExperienceCard
 					title="XR Technology Assistant"
