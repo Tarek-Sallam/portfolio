@@ -16,7 +16,7 @@
 				<ExperienceCard
 					title="Applied ML Engineering Intern"
 					location="Shopify - Ottawa, Canada"
-					dates="May 2025 - Current"
+					dates="May 2025 - August 2025"
 				/>
 				<ExperienceCard
 					title="Teaching Assistant - Discrete Structures I & II"
